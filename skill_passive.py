@@ -288,7 +288,7 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                     
                     if(isDisplay == 1) :
                         
-                        txts.append("{}防御力下降三点,当前防御力为:{}".format  (two[second].name, two[second].defensiveness))
+                        txts.append("梅比乌斯触发被动：不稳定物质，{}防御力下降三点,当前防御力为:{}".format  (two[second].name, two[second].defensiveness))
         
                     
                 
