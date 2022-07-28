@@ -111,7 +111,7 @@ async def _(bot: Bot,
         await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
-                money_add = int (money_spend * 10000 / list_prob[1] * 0.95)
+                money_add = int (money_spend * 10000 / (list_prob[1] + 1) * 0.95)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
@@ -122,7 +122,7 @@ async def _(bot: Bot,
                 
         if int(selRole) == 1:
             if(list_fight[5].isDisplayVictory == 1):
-                money_add = int (money_spend * 10000 / list_prob[3] * 0.95)
+                money_add = int (money_spend * 10000 / (list_prob[3] + 1) * 0.95)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
