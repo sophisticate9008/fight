@@ -85,7 +85,7 @@ async def _(bot: Bot,
             money_spend = int (text_split[1])
         except:
             await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
-        if selRole != 0 or selRole != 1:
+        if selRole != 0 and selRole != 1:
             await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
         gold_have = await BagUser.get_gold(uid, group)
         if gold_have < money_spend:
