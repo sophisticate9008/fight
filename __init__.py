@@ -84,7 +84,9 @@ async def _(bot: Bot,
             selRole = int (text_split[0])
             money_spend = int (text_split[1])
         except:
-            await ready.finish("参数不正确！重新输入【海滨乱斗】")
+            await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
+        if selRole != 0 or selRole != 1:
+            await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
         gold_have = await BagUser.get_gold(uid, group)
         if gold_have < money_spend:
             await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
@@ -175,4 +177,3 @@ async def deltemp(path:str):
         shutil.rmtree(path)
     except:
         pass
-
