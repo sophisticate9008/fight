@@ -33,7 +33,7 @@ usage:
     会扣除所得税百分之五
 """.strip()
 __plugin_des__ = "逐火英桀战斗模拟"
-__plugin_cmd__ = ["海滨乱斗", " [空格] [参数一] [参数二]"]
+__plugin_cmd__ = ["海滨乱斗", "[参数一] [参数二]"]
 __plugin_type__ = ("真寻小赌场",)
 __plugin_version__ = 1.0
 __plugin_author__ = "冰蓝色光点"
@@ -66,7 +66,7 @@ async def _(bot: Bot,
     list_prob = []
     stats(rands1, rands2, 0, 10000, list_prob)
     await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{}  {}\n 获胜获得金币倍率分别为{}  {}'.format(list_prob[0], list_prob[2], list_prob[1] /10000, list_prob[3] / 10000, 10000 / (list_prob[1] + 1), 10000 / (list_prob[3] + 1)))
-    await bot.send(event, '请选择你的支持目标和投注金额,以空格为开始命令 0为前 1为后, 两个参数空格隔开')
+    await bot.send(event, '请选择你的支持目标和投注金额, 0为前 1为后, 两个参数空格隔开')
     state['role_two'] = [rands1, rands2]
     @ready.got('select')
     async def _(bot: Bot,                                                                   
