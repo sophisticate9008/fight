@@ -84,10 +84,10 @@ async def _(bot: Bot,
             selRole = int (text_split[0])
             money_spend = int (text_split[1])
         except:
-            await ready.finish("参数不正确！重新输入")
+            await ready.finish("参数不正确！重新输入【海滨乱斗】")
         gold_have = await BagUser.get_gold(uid, group)
         if gold_have < money_spend:
-            await ready.finish("你的钱不够,请下次看好你有多少金币")
+            await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
         await BagUser.spend_gold(uid, group, money_spend)
         await bot.send(event, '以下是战斗过程')
         list_fight = []
