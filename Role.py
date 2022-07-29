@@ -39,6 +39,7 @@ class Role:
     effectedSelf_jie = 0
     messPassed = 0    
     count = 0
+    state_ying_kesimo = 0
     def __init__(self, name,  attack,  defensiveness,  speed,  cd,  skill,  typePassive):
         self.name = name
         self.defensiveness = defensiveness
