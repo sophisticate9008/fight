@@ -114,7 +114,9 @@ def calState(  two,  isDispaly, txts) :
             two[i].attack += two[i].AttackTmpChanged 
             two[i].effected = 1
             two[i].StateTimes_op = two[i].StateTimes_op - 1
-            
+            two[i].state_ying_kesimo -= 1
+            if two[i].state_ying_kesimo < 0:
+                two[i].state_ying_kesimo = 0
             two[i].defensiveness += two[i].defensivenessTmpChanged
             two[i].silence = two[i].silenceChanged
             two[i].free = two[i].freechanged
