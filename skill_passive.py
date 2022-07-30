@@ -259,7 +259,7 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                 else :
                     two[second].StateTimes_op = 6
                     two[second].StateTimes_op_st = 6
-                    two[second].state_ying_kesimo = 6
+                    two[second].state_ying_kesimo += 6
                     two[second].stateHarmed = 4
                     if(isDisplay == 1) :
                         txts.append("科斯魔触发了被动技:不归之爪,{}进入撕裂状态".format  (two[second].name))
