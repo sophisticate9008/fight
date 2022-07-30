@@ -129,14 +129,11 @@ def skill_a(two, order, isDisplay, txts, count) :
         rands = []
         for i in range(4):
             rands.append(random.randint(0 ,11) + 11)
-        
+        for i in range(4):
+            if(rands[i] - two[second].defensiveness > 0):
+                two[second].attacked += rands[i] - two[second].defensiveness
         if(isDisplay == 1) :
             txts.append("科斯魔进行4次攻击,伤害分别为{} {} {} {}".format ( rands[0], rands[1], rands[2], rands[3]))
-            for i in range(4) :
-                if(rands[i] - two[second].defensiveness):
-                    two[second].attacked += rands[i] - two[second].defensiveness
-            
-        
         if(two[second].StateTimes_op > 0) :     
             two[second].attacked += 12          
             if(isDisplay == 1) :
