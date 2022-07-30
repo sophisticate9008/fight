@@ -76,7 +76,8 @@ def   calLife(  two,  order,  isDispaly,  attackPer,  defensePer,  detail,  mess
     #挑选对应防守被动
     for i in range(2):
         
-        skill_p( two, i, 0, isDispaly, inCal, txts, count)
+        if skill_p( two, i, 0, isDispaly, inCal, txts, count):
+            return True
         two[i].life -= two[i].attacked
     
     if isDispaly == 1 :
@@ -92,7 +93,7 @@ def   calLife(  two,  order,  isDispaly,  attackPer,  defensePer,  detail,  mess
     
     two[attackPer].attacked = 0
     two[defensePer].attacked = 0        
-    return two
+    return True
 
 
 #状态计算
@@ -234,7 +235,8 @@ def   fight(  left,  right,  isDispaly,  two) :
                         return two
                     #挑选对应进攻被动
 
-                    calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, 0, txts, count)#计算生命
+                    if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, 0, txts, count):
+                        return two
                     calState( two, isDispaly, txts)#计算状态
                     if two[ordinal_1].life <= 0 :
                         two[ordinal_0].isDisplayVictory = 1
@@ -272,10 +274,20 @@ def   fight(  left,  right,  isDispaly,  two) :
                     if skill_p( two, i, 1, isDispaly, 0, txts, count) :
                         return two
                     #挑选对应进攻被动
-                    calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, two[ordinal_0].mess, txts, count)
+                    if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, two[ordinal_0].mess, txts, count):
+                        return two
                     calState( two, isDispaly, txts) 
                     if two[ordinal_1].life <= 0:
                         two[ordinal_0].isDisplayVictory = 1
+                        if isDispaly == 1:
+                            image_add_text(count, txts,  text_color=(0, 0, 0), text_size=12)
+                            for i in txts:
+                                print(i)
+                            print()
+                        txts.clear()
+                        return two
+                    if two[ordinal_0].life <= 0:
+                        two[ordinal_1].isDisplayVictory = 1
                         if isDispaly == 1:
                             image_add_text(count, txts,  text_color=(0, 0, 0), text_size=12)
                             for i in txts:
