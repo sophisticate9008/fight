@@ -66,10 +66,19 @@ async def _(bot: Bot,
         rands2 = int(random.randint(0, 11))
     list_prob = []
     stats(rands1, rands2, 0, 10000, list_prob)
-    await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{}  {}\n 获胜获得金币倍率分别为{}  {}'.format(list_prob[0], list_prob[2], list_prob[1] /10000, list_prob[3] / 10000, 10000 / (list_prob[1] + 1), 10000 / (list_prob[3] + 1)))
+    list_beilv = []
+    if list_prob[1] < 100:
+        list_beilv.append(100.00)
+    else:
+        list.beilv.append(10000 / list_prob[1])
+    if list_prob[3] < 100:
+        list_beilv.append(100.00)
+    else:
+        list.beilv.append(10000 / list_prob[3])   
+    await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
     await bot.send(event, '请选择你的支持目标和投注金额, 0为前 1为后, 两个参数空格隔开')
     state['role_two'] = [rands1, rands2]
-    state['beilv'] = [list_prob[1], list_prob[3]]
+    state['beilv'] = list_beilv
     @ready.got('select')
     async def _(bot: Bot,                                                                   
         event: GroupMessageEvent,
@@ -114,7 +123,7 @@ async def _(bot: Bot,
         list_beilv = state['beilv']
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
-                money_add = int (money_spend * 10000 / (list_beilv[0] + 1) * 0.95)
+                money_add = int (money_spend * list_beilv[0] * 0.95)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
@@ -125,7 +134,7 @@ async def _(bot: Bot,
                 
         if int(selRole) == 1:
             if(list_fight[5].isDisplayVictory == 1):
-                money_add = int (money_spend * 10000 / (list_beilv[1] + 1) * 0.95)
+                money_add = int (money_spend * list_beilv[0] * 0.95)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
