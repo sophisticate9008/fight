@@ -93,7 +93,7 @@ def   calLife(  two,  order,  isDispaly,  attackPer,  defensePer,  detail,  mess
     
     two[attackPer].attacked = 0
     two[defensePer].attacked = 0        
-    return True
+    return False
 
 
 #状态计算
