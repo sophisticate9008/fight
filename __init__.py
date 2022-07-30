@@ -26,11 +26,12 @@ from models.bag_user import BagUser
 import nonebot
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
-    
 usage:
     随机挑选2名英桀进行战斗 用户进行金币投注
     会生成对战赢的概率 根据概率获得金币倍率收益
     会扣除所得税百分之五
+    指令:
+    "海滨乱斗", "[参数一] [参数二]"
 """.strip()
 __plugin_des__ = "逐火英桀战斗模拟"
 __plugin_cmd__ = ["海滨乱斗", "[参数一] [参数二]"]
