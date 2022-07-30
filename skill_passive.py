@@ -154,11 +154,11 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
             if(two[first].StateTimes_self >= 1 and two[first].StateTimes_op == two[first].StateTimes_op_st and two[first].StateTimes_op != 0) :
                 if(isDisplay == 1) :
                     txts.append("樱没有获得附加状态")
-                if two[first].state_ying_kesimo == 6:
-                    two[first].state_ying_kesimo = 0
                 two[first].free = 1
                 two[first].StateTimes_op = 0
-                two[first].StateTimes_op += two[first].state_ying_kesimo
+                two[first].StateTimes_op += two[first].state_ying_kesimo % 6
+                if two[first].StateTimes_op == 0:
+                    two[first].state_ying_kesimo = 0
                 two[first].StateTimes_self = 0
             
         
