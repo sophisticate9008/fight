@@ -123,7 +123,7 @@ async def _(bot: Bot,
         list_beilv = state['beilv']
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
-                money_add = int (money_spend * list_beilv[0] * 0.95)
+                money_add = int (money_spend * list_beilv[0] * 0.95 + money_spend * 0.05)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
@@ -134,7 +134,7 @@ async def _(bot: Bot,
                 
         if int(selRole) == 1:
             if(list_fight[5].isDisplayVictory == 1):
-                money_add = int (money_spend * list_beilv[1] * 0.95)
+                money_add = int (money_spend * list_beilv[1] * 0.95 + money_spend * 0.05)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
