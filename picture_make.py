@@ -51,7 +51,7 @@ def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
     for i in txts:
         j = j + 1
         draw.text((0, j * 14), i, text_color, font=fontStyle)
-    img.save(temp / '{}.png'.format(count))
+    img.save(temp / '{}.png'.format(count - 1))
     del img
     return count
 
