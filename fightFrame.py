@@ -274,7 +274,7 @@ def   fight(  left,  right,  isDispaly,  two) :
                     if skill_p( two, i, 1, isDispaly, 0, txts, count):
                         return two
                     #挑选对应进攻被动
-                    if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, two[ordinal_0].mess, txts, count)
+                    if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, two[ordinal_0].mess, txts, count):
                         return two
                     calState( two, isDispaly, txts) 
                     if two[ordinal_1].life <= 0:
