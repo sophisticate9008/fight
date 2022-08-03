@@ -25,6 +25,7 @@ from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from models.bag_user import BagUser
 import nonebot
 from utils.manager import withdraw_message_manager
+from configs.config import Config
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
 usage:
@@ -61,7 +62,7 @@ __plugin_configs__ = {
         "value": (0, 1),
         "help": "自动撤回，参1：延迟撤回语言时间(秒)，0 为关闭 | 参2：监控聊天类型，0(私聊) 1(群聊) 2(群聊+私聊)",
         "default_value": (5, 1),
-    }
+    },
 }
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True) 
@@ -131,6 +132,15 @@ async def _(bot: Bot,
         await BagUser.spend_gold(uid, group, money_spend)
         try:
             msg_id = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id["message_id"],
+                Config.get_config("fight", "FIGHT_TMP"),
+            )
+        except:
+            pass
+        try:
+            msg_id = await bot.send(event, '请选择你的支持目标和投注金额, 0为前 1为后, 两个参数空格隔开')
             withdraw_message_manager.withdraw_message(
                 event,
                 msg_id["message_id"],
