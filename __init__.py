@@ -110,6 +110,20 @@ async def _(bot: Bot,
         text_split = []
         text_split = text.split()
         try:
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id_0["message_id"],
+                Config.get_config("fight", "FIGHT_TMP),
+            )
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id_1["message_id"],
+                Config.get_config("fight", "FIGHT_TMP"),
+            )
+        except:
+            pass
+
+        try:
             selRole = int (text_split[0])
             money_spend = int (text_split[1])
         except:
@@ -151,20 +165,6 @@ async def _(bot: Bot,
                 event,
                 msg_id["message_id"],
                 Config.get_config("fight", "FIGHT_PROCESS"),
-            )
-        except:
-            pass
-
-        try:
-            withdraw_message_manager.withdraw_message(
-                event,
-                msg_id_0["message_id"],
-                Config.get_config("fight", "FIGHT_TMP),
-            )
-            withdraw_message_manager.withdraw_message(
-                event,
-                msg_id_1["message_id"],
-                Config.get_config("fight", "FIGHT_TMP"),
             )
         except:
             pass
