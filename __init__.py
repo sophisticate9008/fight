@@ -113,7 +113,7 @@ async def _(bot: Bot,
             withdraw_message_manager.withdraw_message(
                 event,
                 msg_id_0["message_id"],
-                Config.get_config("fight", "FIGHT_TMP),
+                Config.get_config("fight", "FIGHT_TMP"),
             )
             withdraw_message_manager.withdraw_message(
                 event,
