@@ -24,6 +24,7 @@ from nonebot import on_command
 from nonebot.adapters.onebot.v11 import GroupMessageEvent
 from models.bag_user import BagUser
 import nonebot
+from utils.manager import withdraw_message_manager
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
 usage:
@@ -50,6 +51,18 @@ __plugin_count_limit__ = {
     "rst": "每天只能进行50次投注，你没有机会了",            # 回复的话，为None时不回复，可以添加[at]，[uname]，[nickname]来对应艾特，用户群名称，昵称系统昵称
     "status": True          # 此限制的开关状态
 }
+__plugin_configs__ = {
+    "FIGHT_PROCESS": {
+        "value": (0, 1),
+        "help": "自动撤回，参1：延迟撤回战斗过程时间(秒)，0 为关闭 | 参2：监控聊天类型，0(私聊) 1(群聊) 2(群聊+私聊)",
+        "default_value": (15, 1),
+    },
+    "FIGHT_TMP": {
+        "value": (0, 1),
+        "help": "自动撤回，参1：延迟撤回语言时间(秒)，0 为关闭 | 参2：监控聊天类型，0(私聊) 1(群聊) 2(群聊+私聊)",
+        "default_value": (5, 1),
+}
+
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True) 
 @ready.handle()
 async def _(bot: Bot,
@@ -74,9 +87,16 @@ async def _(bot: Bot,
     if list_prob[3] < 100:
         list_beilv.append(100.00)
     else:
-        list_beilv.append(10000 / list_prob[3])   
-    await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
-    await bot.send(event, '请选择你的支持目标和投注金额, 0为前 1为后, 两个参数空格隔开')
+        list_beilv.append(10000 / list_prob[3]) 
+    try:
+        msg_id = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
+        withdraw_message_manager.withdraw_message(
+        event,
+        msg_id["message_id"],
+        Config.get_config("fight", FIGHT_TMP),
+        )
+    except:
+        pass
     state['role_two'] = [rands1, rands2]
     state['beilv'] = list_beilv
     @ready.got('select')
@@ -102,7 +122,25 @@ async def _(bot: Bot,
         if gold_have < money_spend:
             await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
         await BagUser.spend_gold(uid, group, money_spend)
-        await bot.send(event, '以下是战斗过程')
+        try:
+            msg_id = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id["message_id"],
+                Config.get_config("fight", "FIGHT_TMP"),
+            )
+        except:
+            pass
+        
+        try:
+            msg_id = await bot.send(event, '以下是战斗过程')
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id["message_id"],
+                Config.get_config("fight", "FIGHT_TMP"),
+            )
+        except:
+            pass
         list_fight = []
         list_role = state['role_two']
         list_fight = stats(list_role[0], list_role[1], 1, 1, list_fight)
@@ -119,7 +157,15 @@ async def _(bot: Bot,
         for i in range(count):
             image_file = f"file:///{path_fight_temp}{i}.png"
             msg_list = await chain_reply(bot, msg_list, image_file)
-        await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
+        try:
+            msg_id = await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
+            withdraw_message_manager.withdraw_message(
+                event,
+                msg_id["message_id"],
+                Config.get_config("fight", "FIGHT_PROCESS"),
+            )
+        except:
+            pass
         list_beilv = state['beilv']
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
