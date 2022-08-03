@@ -61,6 +61,7 @@ __plugin_configs__ = {
         "value": (0, 1),
         "help": "自动撤回，参1：延迟撤回语言时间(秒)，0 为关闭 | 参2：监控聊天类型，0(私聊) 1(群聊) 2(群聊+私聊)",
         "default_value": (5, 1),
+    }
 }
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True) 
