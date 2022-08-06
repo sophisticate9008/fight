@@ -306,7 +306,7 @@ async def _(
         money_add = int (fight_player[group][i]["money"] / money_sum_vic * money_pool)
         kwarg_award[fight_player[group][i]["name"]] = money_add
         await BagUser.add_gold(fight_player[group][i]["uid"], group, money_add)
-    await bot.send(event, f'战斗结束，获胜者为{list_return[2]}\n奖池为{int(money_pool)}金币\n获得情况如下\n{kwarg_award}')
+    await bot.send(event, f'战斗结束，获胜者为{list_return[2]}\n奖池为{int(money_pool)}金币\n分配情况如下\n{kwarg_award}')
     kwarg_award = {}
     list_vic = []
     list_return = []
