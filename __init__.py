@@ -63,7 +63,7 @@ __plugin_settings__ = {
     "level": 5,
     "default_status": True,
     "limit_superuser": False,
-    "cmd": ["海滨乱斗 选择 [] []"],
+    "cmd": ["海滨乱斗 选择 [] []", "应援 [目标] [金额]"],
 }
 __plugin_count_limit__ = {
     "max_count": 100,    # 每日次数限制数量
@@ -90,7 +90,7 @@ format_number = 0
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨乱斗应援会", permission=GROUP, priority=5, block=True)
-join_multi = on_command("应援会应援",permission=GROUP, priority=5, block=True)
+join_multi = on_command("应援",permission=GROUP, priority=5, block=True)
 fight_format = on_command("海滨乱斗比赛", permission=GROUP, priority=5, block=True)
 join_format = on_command("比赛下注", permission=GROUP, priority=5, block=True) 
 @ready.handle()
