@@ -13,8 +13,10 @@
 投注默认为50次
 
 需要修改请到真寻目录/data/configs/plugins2count.yaml修改 实际使用次数为max_count / 2
-
-
+#
+2022/8/6
+新增海滨后援会功能
+详情查看__init__.py
 
 #
 2022/8/3
