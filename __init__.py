@@ -38,7 +38,7 @@ usage:
 __plugin_des__ = "逐火英桀战斗模拟"
 __plugin_cmd__ = ["海滨乱斗", "[参数一] [参数二]"]
 __plugin_type__ = ("真寻小赌场",)
-__plugin_version__ = 2.2
+__plugin_version__ = 3.0
 __plugin_author__ = "冰蓝色光点"
 __plugin_settings__ = {
     "level": 5,
