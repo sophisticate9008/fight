@@ -1,5 +1,4 @@
 # coding=utf-8
-from ast import Await
 import asyncio
 from email.mime import image
 from ntpath import join
@@ -40,11 +39,11 @@ usage:
         会扣除所得税百分之五
         指令:
         "海滨乱斗", "[参数一] [参数二]"
-    海滨乱斗应援会:
+    海滨应援会:
         随机挑选两名英桀进行战斗,30s内用户可选择支持的英桀和应援金额
         奖池为所有人的应援金币 * 胜者英桀倍率 * 0.95
         奖池分配为胜利英桀的支持者所应援的金币 / 支持者所应援的金币总额 * 奖池金额
-        在未进行投注前可重新随机挑选英桀
+        请勿重复应援 虽然钱会增加但只显示最后一次获得
         指令:
         "海滨应援会", "应援 [目标] [金额]"
     海滨比赛:
@@ -255,9 +254,10 @@ async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
     global fight_player
+    global multi_number
     group = event.group_id
     try:
-        if fight_player[group][1]:
+        if fight_player[group][0]:
             await fight_multi.finish('已经有应援会在进行了,请直接应援')
     except KeyError:
         pass
@@ -279,32 +279,34 @@ async def _(
         list_beilv.append(100.00)
     else:
         list_beilv.append(10000 / list_prob[3])
-    msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n,将不显示概率\n,请发送 应援 [0 or 1] [money]\n'.format(list_prob[0], list_prob[2]))
+    msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]\n'.format(list_prob[0], list_prob[2]))
+    
     list_role = [rands1, rands2]
     fight_player[group] = {}
+    fight_player[group][0] = 1
     fight_player[group]['time'] = time.time()
-    await asyncio.sleep(30)
+    await asyncio.sleep(60)
     await bot.send(event,'应援时间已过,开始战斗\n以下是战斗过程')
     list_return = []
     list_return = await begin_fight(list_role, bot, list_return)
     await bot.send_group_forward_msg(group_id=group, messages=list_return[0])
     money_sum = 0
     money_sum_vic = 0
-    for i in fight_player[group]:
-        money_sum += i["money"].values()
-        await BagUser.spend_gold(i["uid"].values(), group, i["money"].values())
+    for i in range(1, len(fight_player[group]) - 1):
+        money_sum += fight_player[group][i]["money"]
+        await BagUser.spend_gold(fight_player[group][i]["uid"], group, fight_player[group][i]["money"])
     money_pool = list_beilv[list_return[1]] * money_sum * 0.95
     list_vic = []
-    for i in fight_player[group]:
-        if i["support"] == list_return[1]:
-            money_sum_vic += i["money"].values()
+    for i in range(1, len(fight_player[group]) - 1):
+        if fight_player[group][i]["support"] == list_return[1]:
+            money_sum_vic += fight_player[group][i]["money"]
             list_vic.append(i)
     kwarg_award = {}
     for i in list_vic:
-        money_add = int (i["money"].values() / money_sum_vic * money_pool)
-        kwarg_award[i["name"].values()] = money_add
-        await BagUser.add_gold(i["uid"].values(), group, money_add)
-    await bot.send(event, f'战斗结束，金币获得情况如下\n{kwarg_award}')
+        money_add = int (fight_player[group][i]["money"] / money_sum_vic * money_pool)
+        kwarg_award[fight_player[group][i]["name"]] = money_add
+        await BagUser.add_gold(fight_player[group][i]["uid"], group, money_add)
+    await bot.send(event, f'战斗结束，奖池为{money_pool}金币获得情况如下\n{kwarg_award}')
     kwarg_award = {}
     list_vic = []
     list_return = []
@@ -313,6 +315,8 @@ async def _(
     list_beilv = []
     list_prob = []
     fight_player = {}
+    multi_number = 0
+    money_pool = 0
     
 @join_multi.handle()
 async def _(
