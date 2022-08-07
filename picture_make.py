@@ -84,7 +84,7 @@ def image_add_name(name:str, txts:dict,  type:int ,text_color=(0, 0, 0), text_si
         if type == 2:
             draw.text((0, j * 14), txts[i]["name"], text_color, font=fontStyle)
 
-            draw.text((160, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)            
+            draw.text((280, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)            
     img.save(temp / '{}.png'.format(name))
     del img
     return 0
