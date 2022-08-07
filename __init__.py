@@ -333,16 +333,18 @@ async def _(
         msg_sup = msg[0]
         msg_money = msg[1]
         gold_have = await BagUser.get_gold(uid, group)
-        if fight_player[group]["time"] - time.time() < 30:
-            if is_number(msg_sup) and is_number(msg_money):
-                if int(msg_sup) == 0 or int(msg_sup) == 1:
-                    if int(msg_money) >= 0 and int(msg_money) <= gold_have:
-                        fight_player[group][multi_number] = {}
-                        fight_player[group][multi_number]["uid"] = uid
-                        fight_player[group][multi_number]["support"] = int(msg_sup)
-                        fight_player[group][multi_number]["money"] = int(msg_money)
-                        fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name
-
+        try:
+            if time.time() - fight_player[group]["time"] < 60:
+                if is_number(msg_sup) and is_number(msg_money):
+                    if int(msg_sup) == 0 or int(msg_sup) == 1:
+                        if int(msg_money) >= 0 and int(msg_money) <= gold_have:
+                            fight_player[group][multi_number] = {}
+                            fight_player[group][multi_number]["uid"] = uid
+                            fight_player[group][multi_number]["support"] = int(msg_sup)
+                            fight_player[group][multi_number]["money"] = int(msg_money)
+                            fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name
+        except KeyError:
+            await join_multi.finish("没有应援会在进行哦")
 
 async def begin_fight(list_role, bot, list_return) :
     list_fight = []
