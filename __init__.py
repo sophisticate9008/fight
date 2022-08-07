@@ -344,6 +344,7 @@ async def _(
                             fight_player[group][multi_number]["money"] = int(msg_money)
                             fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name
         except KeyError:
+            multi_number = 0
             await join_multi.finish("没有应援会在进行哦")
 
 async def begin_fight(list_role, bot, list_return) :
