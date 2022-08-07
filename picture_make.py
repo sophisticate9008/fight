@@ -79,7 +79,7 @@ def image_add_name(name:str, txts:dict,  type:int ,text_color=(0, 0, 0), text_si
         j = j + 1
         if type == 3:
             draw.text((0, j * 14), txts[i]["name"], text_color, font=fontStyle)
-            draw.text((160, j * 14), txts[i]["support"], (208, 122, 255), font=fontStyle)
+            draw.text((137, j * 14), txts[i]["support"], (208, 122, 255), font=fontStyle)
             draw.text((274, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)
         if type == 2:
             draw.text((0, j * 14), txts[i]["name"], text_color, font=fontStyle)
