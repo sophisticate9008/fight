@@ -2,6 +2,7 @@
 import asyncio
 from email.mime import image
 from ntpath import join
+from unicodedata import name
 from configs.config import NICKNAME
 from nonebot import on_command
 from nonebot.typing import T_State
@@ -10,7 +11,8 @@ from nonebot.adapters.onebot.v11 import (
         MessageEvent,
         GROUP,
         Bot,
-        Message
+        Message,
+        MessageSegment
 )
 from utils.utils import get_message_text
 from nonebot.internal.params import ArgStr, Arg
@@ -30,6 +32,8 @@ from utils.manager import withdraw_message_manager
 from configs.config import Config
 from utils.utils import is_number
 from models.group_member_info import GroupInfoUser
+from .picture_make import image_add_name
+
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
 usage:
@@ -43,7 +47,6 @@ usage:
         随机挑选两名英桀进行战斗,60s内用户可选择支持的英桀和应援金额
         奖池为所有人的应援金币 * 胜者英桀倍率 * 0.95
         奖池分配为胜利英桀的支持者所应援的金币 / 支持者所应援的金币总额 * 奖池金额
-        每位用户一局只能应援一次
         指令:
         "海滨应援会", "应援 [目标] [金额]"
     海滨比赛:
@@ -180,13 +183,13 @@ async def _(bot: Bot,
         msg_list = []
         image_file_role1 = f"file:///{path_fight1}/resources/{list_role[0]}.jpg" 
         image_file_role2 = f"file:///{path_fight1}/resources/{list_role[1]}.jpg"
-        msg_list = await chain_reply(bot, msg_list, image_file_role1)
-        msg_list = await chain_reply(bot, msg_list, image_file_role2)
+        msg_list = await chain_reply(bot, msg_list, image_file_role1, "")
+        msg_list = await chain_reply(bot, msg_list, image_file_role2, "")
         path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
         
         for i in range(count):
             image_file = f"file:///{path_fight_temp}{i}.png"
-            msg_list = await chain_reply(bot, msg_list, image_file)
+            msg_list = await chain_reply(bot, msg_list, image_file, "")
         try:
             msg_id = await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
             withdraw_message_manager.withdraw_message(
@@ -221,7 +224,7 @@ async def _(bot: Bot,
                 
 
                     
-async def chain_reply(bot, msg_list, image):
+async def chain_reply(bot, msg_list, image, text:str):
     
     data = {
         "type": "node",
@@ -229,7 +232,7 @@ async def chain_reply(bot, msg_list, image):
             "name": f"{NICKNAME}",
             "uin": f"{bot.self_id}",
             "content": [
-                {"type": "text", "data": {"text": ""}},
+                {"type": "text", "data": {"text": text}},
                 {"type": "image", "data": {"file": image}},
             ],
         },
@@ -244,11 +247,6 @@ async def deltemp(path:str):
         pass
 
 
-async def deltemp(path:str):
-    try:
-        shutil.rmtree(path)
-    except:
-        pass
 
 
 @fight_multi.handle()
@@ -265,6 +263,8 @@ async def _(
     except KeyError:
         pass
     path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
+    
+    #随机部分
     await deltemp(path_fight_temp)
     rands1 = int(random.randint(0, 11))
     rands2 = int(random.randint(0, 11))
@@ -284,32 +284,60 @@ async def _(
         list_beilv.append(10000 / list_prob[3])
     msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]'.format(list_prob[0], list_prob[2]))
     
+    #等待部分
     list_role = [rands1, rands2]
     fight_player[group] = {}
     fight_player[group][0] = 1
     fight_player[group]['time'] = time.time()
-    await asyncio.sleep(60)
-    await bot.send(event,'应援时间已过,开始战斗\n以下是战斗过程')
+    await asyncio.sleep(60)#时间修改
+    dict_all = {}
+    #清单发送
+    for i in range(1, len(fight_player[group]) - 1):
+        dict_all[i] = {}
+        dict_all[i]["name"] = fight_player[group][i]["name"]
+        role_sup = fight_player[group][i]["support"]
+        role_num = list_role[role_sup]
+        dict_all[i]["support"] = await int_to_name(role_num)
+        dict_all[i]["money"] = fight_player[group][i]["money"]
+    image_add_name("yingyuandan", dict_all, 3)
+    msg_tuple = ()
+    img_yingyuandan = f"file:///{path_fight_temp}yingyuandan.png"
+    msg_tuple = ('应援时间已过,开始战斗\n以下是应援清单', MessageSegment.image(img_yingyuandan))
+    await fight_multi.send(Message(msg_tuple))
+    msg_tuple = ()
+    
+    #战斗主体
     list_return = []
     list_return = await begin_fight(list_role, bot, list_return)
     await bot.send_group_forward_msg(group_id=group, messages=list_return[0])
     money_sum = 0
     money_sum_vic = 0
+    #奖池计算
     for i in range(1, len(fight_player[group]) - 1):
         money_sum += fight_player[group][i]["money"]
         await BagUser.spend_gold(fight_player[group][i]["uid"], group, fight_player[group][i]["money"])
     money_pool = list_beilv[list_return[1]] * money_sum * 0.95
     list_vic = []
+    #胜者统计
     for i in range(1, len(fight_player[group]) - 1):
         if fight_player[group][i]["support"] == list_return[1]:
             money_sum_vic += fight_player[group][i]["money"]
             list_vic.append(i)
     kwarg_award = {}
+    #奖池分配
     for i in list_vic:
         money_add = int (fight_player[group][i]["money"] / money_sum_vic * money_pool)
-        kwarg_award[fight_player[group][i]["name"]] = money_add
+        kwarg_award[i] = {}
+        kwarg_award[i]["name"] = fight_player[group][i]["name"]
+        kwarg_award[i]["money"] = money_add
         await BagUser.add_gold(fight_player[group][i]["uid"], group, money_add)
-    await bot.send(event, f'战斗结束，获胜者为{list_return[2]}\n奖池为{int(money_pool)}金币\n分配情况如下\n{kwarg_award}')
+    image_add_name("pool_divide", kwarg_award, 2)
+    
+    img_pool_divide = f"file:///{path_fight_temp}pool_divide.png"
+    msg_tuple = (f"战斗结束，获胜者为{list_return[2]}\n奖池金额为({int(money_pool)})\n分配情况如下", MessageSegment.image(img_pool_divide))
+    
+    await fight_multi.send(Message(msg_tuple))
+    msg_tuple= ()
     kwarg_award = {}
     list_vic = []
     list_return = []
@@ -321,6 +349,8 @@ async def _(
     multi_number = 0
     money_pool = 0
     uid_list = []
+    dict_all = {}
+
     
 @join_multi.handle()
 async def _(
@@ -357,6 +387,8 @@ async def _(
             uid_list = []
             await join_multi.finish("没有应援会在进行哦")
 
+
+#战斗函数加合并消息函数
 async def begin_fight(list_role, bot, list_return) :
     list_fight = []
     msg_list = []
@@ -365,12 +397,12 @@ async def begin_fight(list_role, bot, list_return) :
     path_fight1 = str(path_fight)    
     image_file_role1 = f"file:///{path_fight1}/resources/{list_role[0]}.jpg" 
     image_file_role2 = f"file:///{path_fight1}/resources/{list_role[1]}.jpg"    
-    msg_list = await chain_reply(bot, msg_list, image_file_role1)
-    msg_list = await chain_reply(bot, msg_list, image_file_role2)
+    msg_list = await chain_reply(bot, msg_list, image_file_role1, "")
+    msg_list = await chain_reply(bot, msg_list, image_file_role2, "")
     path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
     for i in range(count):
         image_file = f"file:///{path_fight_temp}{i}.png"
-        msg_list = await chain_reply(bot, msg_list, image_file)    
+        msg_list = await chain_reply(bot, msg_list, image_file, "")    
     if list_fight[4].isDisplayVictory == 1:
         vic_role = 0
     else :
@@ -383,8 +415,11 @@ async def begin_fight(list_role, bot, list_return) :
         list_return.append(list_fight[5].name)
     return list_return
             
-            
-
+async def int_to_name(number):
+    list_role = ['凯文', "爱莉希雅", "格蕾修", "樱", "阿波尼亚", "华", "维尔薇", "科斯魔", "梅比乌斯", "千劫", "帕朵菲莉丝", "伊甸"]
+    name = list_role[number]
+    return name    
+    
                 
         
             
