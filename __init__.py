@@ -43,7 +43,7 @@ usage:
         随机挑选两名英桀进行战斗,60s内用户可选择支持的英桀和应援金额
         奖池为所有人的应援金币 * 胜者英桀倍率 * 0.95
         奖池分配为胜利英桀的支持者所应援的金币 / 支持者所应援的金币总额 * 奖池金额
-        每位用户只能应援一次
+        请勿重复应援 虽然钱会增加但只显示最后一次获得
         指令:
         "海滨应援会", "应援 [目标] [金额]"
     海滨比赛:
@@ -87,6 +87,8 @@ __plugin_configs__ = {
 fight_player = {}
 multi_number = 0
 format_number = 0
+uid_list = []
+
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨应援会", permission=GROUP, priority=5, block=True)
@@ -255,6 +257,7 @@ async def _(
 ):
     global fight_player
     global multi_number
+    global uid_list
     group = event.group_id
     try:
         if fight_player[group][0]:
@@ -317,6 +320,7 @@ async def _(
     fight_player = {}
     multi_number = 0
     money_pool = 0
+    uid_list = []
     
 @join_multi.handle()
 async def _(
@@ -324,7 +328,8 @@ async def _(
 ):
     global fight_player
     global multi_number
-    multi_number += 1
+    global uid_list
+    
     uid = event.user_id
     group = event.group_id
     msg = arg.extract_plain_text().strip()
@@ -338,13 +343,18 @@ async def _(
                 if is_number(msg_sup) and is_number(msg_money):
                     if int(msg_sup) == 0 or int(msg_sup) == 1:
                         if int(msg_money) >= 0 and int(msg_money) <= gold_have:
+                            if uid not in uid_list:
+                                uid_list.append(uid)
+                            else:
+                                await join_multi.finish("铁咩,只能投一次啊喂",at_sender=True)                            
+                            multi_number += 1
                             fight_player[group][multi_number] = {}
                             fight_player[group][multi_number]["uid"] = uid
                             fight_player[group][multi_number]["support"] = int(msg_sup)
                             fight_player[group][multi_number]["money"] = int(msg_money)
                             fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name
         except KeyError:
-            multi_number = 0
+            uid_list = []
             await join_multi.finish("没有应援会在进行哦")
 
 async def begin_fight(list_role, bot, list_return) :
