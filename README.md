@@ -14,6 +14,9 @@
 
 需要修改请到真寻目录/data/configs/plugins2count.yaml修改 实际使用次数为max_count / 2
 #
+2022/8/7
+增加没有应援会在进行的提示
+#
 2022/8/6
 新增海滨后援会功能
 详情查看__init__.py
