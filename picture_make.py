@@ -56,7 +56,7 @@ def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
     return count
 
 def image_add_name(name:str, txts:dict,  type:int ,text_color=(0, 0, 0), text_size=12):
-    img_back = Image.new("RGB",(510, (len(txts) * 14) + 1),(255,255,255))
+    img_back = Image.new("RGB",(320, (len(txts) * 14) + 1),(255,255,255))
     fight_dir = IMAGE_PATH / "fight"
     fight_dir.mkdir(exist_ok=True, parents=True)
     temp = fight_dir / "temp"
@@ -79,12 +79,12 @@ def image_add_name(name:str, txts:dict,  type:int ,text_color=(0, 0, 0), text_si
         j = j + 1
         if type == 3:
             draw.text((0, j * 14), txts[i]["name"], text_color, font=fontStyle)
-            draw.text((250, j * 14), txts[i]["support"], (208, 122, 255), font=fontStyle)
-            draw.text((460, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)
+            draw.text((160, j * 14), txts[i]["support"], (208, 122, 255), font=fontStyle)
+            draw.text((280, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)
         if type == 2:
             draw.text((0, j * 14), txts[i]["name"], text_color, font=fontStyle)
 
-            draw.text((460, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)            
+            draw.text((160, j * 14), str(txts[i]["money"]), (255, 224, 0), font=fontStyle)            
     img.save(temp / '{}.png'.format(name))
     del img
     return 0
