@@ -279,7 +279,7 @@ async def _(
         list_beilv.append(100.00)
     else:
         list_beilv.append(10000 / list_prob[3])
-    msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]\n'.format(list_prob[0], list_prob[2]))
+    msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]'.format(list_prob[0], list_prob[2]))
     
     list_role = [rands1, rands2]
     fight_player[group] = {}
