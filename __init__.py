@@ -32,7 +32,7 @@ from utils.manager import withdraw_message_manager
 from configs.config import Config
 from utils.utils import is_number
 from models.group_member_info import GroupInfoUser
-from .picture_make import image_add_name
+from .picture_make import image_add_name, image_win
 
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
@@ -60,7 +60,7 @@ usage:
 __plugin_des__ = "逐火英桀战斗模拟"
 __plugin_cmd__ = ["海滨乱斗", "[参数一] [参数二]"]
 __plugin_type__ = ("真寻小赌场",)
-__plugin_version__ = 3.1
+__plugin_version__ = 3.0
 __plugin_author__ = "冰蓝色光点"
 __plugin_settings__ = {
     "level": 5,
@@ -299,10 +299,11 @@ async def _(
         role_num = list_role[role_sup]
         dict_all[i]["support"] = await int_to_name(role_num)
         dict_all[i]["money"] = fight_player[group][i]["money"]
-    image_add_name("yingyuandan", dict_all, 3)
+    image_add_name("yingyuandan", dict_all,  list_role)
     msg_tuple = ()
-    img_yingyuandan = f"file:///{path_fight_temp}yingyuandan.png"
-    msg_tuple = ('应援时间已过,开始战斗\n以下是应援清单', MessageSegment.image(img_yingyuandan))
+    img_yingyuandan = f"file:///{path_fight_temp}yingyuandan.jpg"
+    await bot.send(event, '应援时间已过,开始战斗\n以下是应援清单')
+    msg_tuple = ('', MessageSegment.image(img_yingyuandan))
     await fight_multi.send(Message(msg_tuple))
     msg_tuple = ()
     
@@ -331,11 +332,12 @@ async def _(
         kwarg_award[i]["name"] = fight_player[group][i]["name"]
         kwarg_award[i]["money"] = money_add
         await BagUser.add_gold(fight_player[group][i]["uid"], group, money_add)
-    image_add_name("pool_divide", kwarg_award, 2)
+    role_win = await int_to_name(list_role[list_return[1]])
+    image_win( kwarg_award, role_win)
     
-    img_pool_divide = f"file:///{path_fight_temp}pool_divide.png"
-    msg_tuple = (f"战斗结束，获胜者为{list_return[2]}\n奖池金额为({int(money_pool)})\n分配情况如下", MessageSegment.image(img_pool_divide))
-    
+    img_pool_divide = f"file:///{path_fight_temp}pool_divide.jpg"
+    await bot.send(event, f"战斗结束，获胜者为{list_return[2]}\n奖池金额为({int(money_pool)})\n分配情况如下")
+    msg_tuple = ("", MessageSegment.image(img_pool_divide))
     await fight_multi.send(Message(msg_tuple))
     msg_tuple= ()
     kwarg_award = {}
