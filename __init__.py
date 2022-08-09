@@ -163,7 +163,7 @@ async def _(bot: Bot,
             await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
         gold_have = await BagUser.get_gold(uid, group)
         if gold_have < money_spend:
-            await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
+            await ready.finish("你的金币不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
         await BagUser.spend_gold(uid, group, money_spend)
         try:
             msg_id = await bot.send(event, '以下是战斗过程')
