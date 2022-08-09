@@ -97,7 +97,7 @@ ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨应援会", permission=GROUP, priority=5, block=True)
 join_multi = on_command("应援",permission=GROUP, priority=5, block=True)
 fight_format = on_command("海滨乱斗比赛", permission=GROUP, priority=5, block=True)
-join_format = on_command("比赛下注", permission=GROUP, priority=5, block=True) 
+join_format = on_command("比赛入场", permission=GROUP, priority=5, block=True) 
 @ready.handle()
 async def _(bot: Bot,
             event: GroupMessageEvent,
@@ -336,7 +336,7 @@ async def _(
     image_win( kwarg_award, role_win)
     
     img_pool_divide = f"file:///{path_fight_temp}pool_divide.jpg"
-    await bot.send(event, f"战斗结束，获胜者为{list_return[2]}\n奖池金额为({int(money_pool)})\n分配情况如下")
+    await bot.send(event, f"战斗结束，获胜者为{list_return[2]}\n金币奖励总共为({int(money_pool)})\n分配情况如下")
     msg_tuple = ("", MessageSegment.image(img_pool_divide))
     await fight_multi.send(Message(msg_tuple))
     msg_tuple= ()
@@ -378,7 +378,7 @@ async def _(
                             if uid not in uid_list:
                                 uid_list.append(uid)
                             else:
-                                await join_multi.finish("铁咩,只能投一次啊喂",at_sender=True)                            
+                                await join_multi.finish("铁咩,只能一次啊喂",at_sender=True)                            
                             multi_number += 1
                             fight_player[group][multi_number] = {}
                             fight_player[group][multi_number]["uid"] = uid
