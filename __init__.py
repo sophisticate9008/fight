@@ -384,6 +384,7 @@ async def _(
                             fight_player[group][multi_number]["uid"] = uid
                             fight_player[group][multi_number]["support"] = int(msg_sup)
                             fight_player[group][multi_number]["money"] = int(msg_money)
+                            await BagUser.spend_gold(uid, group, int(msg_money))
                             fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name
         except KeyError:
             uid_list = []
