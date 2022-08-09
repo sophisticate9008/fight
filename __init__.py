@@ -123,10 +123,10 @@ async def _(bot: Bot,
     else:
         list_beilv.append(10000 / list_prob[3])
     global msg_id_0 
-    msg_id_0 = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
+    msg_id_0 = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍数分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
 
     global msg_id_1
-    msg_id_1 = await bot.send(event, '请选择你的支持目标和应援金额, 0为前 1为后, 两个参数空格隔开')
+    msg_id_1 = await bot.send(event, '请选择你的支持目标和应援gold数量, 0为前 1为后, 两个参数空格隔开')
     state['role_two'] = [rands1, rands2]
     state['beilv'] = list_beilv
     @ready.got('select')
