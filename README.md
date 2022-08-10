@@ -14,6 +14,12 @@
 
 需要修改请到真寻目录/data/configs/plugins2count.yaml修改 实际使用次数为max_count / 2
 #
+2022/8/10
+
+新增海滨比赛功能
+
+配置文件configs.yaml有新参数注意查看
+#
 2022/8/9
 
 少了一张12.png已补
