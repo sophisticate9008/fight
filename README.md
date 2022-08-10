@@ -15,7 +15,7 @@
 需要修改请到真寻目录/data/configs/plugins2count.yaml修改 实际使用次数为max_count / 2
 #
 2022/8/11
-修复初始化问题（感谢
+修复初始化问题（感谢yuan448
 
 修复比赛奖金实际未到账
 
