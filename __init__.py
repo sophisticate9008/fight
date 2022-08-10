@@ -106,10 +106,6 @@ __plugin_configs__ = {
     },    
 }
 
-time_relax = int (Config.get_config("fight", "FIGHT_RELAX"))
-time_yingyuan = float(Config.get_config("fight", "FIGHT_YINGYUAN"))
-time_compete = float(Config.get_config("fight", "FIGHT_COMPETE"))
-
 fight_player = {}
 multi_number = 0
 com_number = 0
@@ -283,7 +279,7 @@ async def _(
     global fight_player
     global multi_number
     global uid_list
-    global time_yingyuan
+    time_yingyuan = float(Config.get_config("fight", "FIGHT_YINGYUAN"))
     group = event.group_id
     try:
         
@@ -408,7 +404,7 @@ async def _(
     global fight_player
     global multi_number
     global uid_list
-    global time_yingyuan
+    time_yingyuan = float(Config.get_config("fight", "FIGHT_YINGYUAN"))
     uid = event.user_id
     group = event.group_id
     msg = arg.extract_plain_text().strip()
@@ -491,8 +487,8 @@ async def _(
     global list_win
     global list_lost
     global com_number
-    global time_relax
-    global time_compete
+    time_compete = float(Config.get_config("fight", "FIGHT_COMPETE"))
+    time_relax = int(Config.get_config("fight", "FIGHT_RELAX"))
     uid = event.user_id
     group = event.group_id
     msg = arg.extract_plain_text().strip()
@@ -638,11 +634,11 @@ async def _(
 async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
-    global time_compete
     global uid_list_compete
     global players_compete
     global list_mode_cost
     global com_number
+    time_compete = float(Config.get_config("fight", "FIGHT_COMPETE"))
     uid = event.user_id
     group = event.group_id
     try: 
@@ -674,17 +670,3 @@ async def _(
         txts = {}
         com_number = 0        
         await join_compete.finish("键错误,强行初始化")        
-
-            
-            
-            
-                   
-                            
-    
-    
-                                          
-                            
-                
-              
-        
-            
