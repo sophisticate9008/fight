@@ -134,9 +134,53 @@ def image_win(txts:dict, role_win:str):
         pass
     
     return       
-    
 
 
-
-
-
+def image_compete(txts:dict, mode:int):
+    text_size = 31
+    m = 0
+    n = 0
+    img_length = 401
+    img_width = 600
+    if mode == 2:
+        m = 2
+        n = 1
+    if mode == 4:
+        m = 2
+        n = 2
+    if mode == 8:
+        m = 4
+        n = 2
+    if mode == 12:
+        m = 4
+        n = 3
+    path_fight = os.path.dirname(__file__)
+    path_fight_res = str(path_fight) + "/resources/"
+    fight_dir = IMAGE_PATH / "fight"
+    fight_dir.mkdir(exist_ok=True, parents=True)
+    temp = fight_dir / "temp"
+    temp.mkdir(exist_ok=True, parents=True)
+    fight_ttf = str(FONT_PATH / "yuanshen.ttf")
+    fontStyle = ImageFont.truetype(fight_ttf, text_size, encoding="utf-8")  
+    img_back = Image.new('RGB',(m * (img_length), n * (img_width + text_size + 4)), (255,255,255))
+    draw = ImageDraw.Draw(img_back) 
+    rows = 0
+    columns = 0
+    for i in txts:
+        print(i)
+        if (columns) % m == 0 and columns != 0:
+            rows += 1
+            columns = 0
+        support = txts[i]["support"]
+        img_role = path_fight_res + str(support + 12) + '.png'
+        img = Image.open(img_role)
+        img_back.paste(img, (columns * img_length, rows * (img_width + text_size + 4)))
+        del img
+        draw.text((columns * img_length, (rows + 1) * img_width + 2), txts[i]["name"], (0, 0, 0), font=fontStyle)
+        columns += 1
+    img_back.save(temp / '{}.jpg'.format("compete"))
+    del img_back
+    try:
+        del img
+    except:
+        pass
