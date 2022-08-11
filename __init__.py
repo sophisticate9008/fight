@@ -551,6 +551,17 @@ async def _(
                 list_win.append(relive[0])
                 list_win.append(relive[1])
                 count_com += 2
+                name_tmp1 = await int_to_name(relive[0])
+                name_tmp2 = await int_to_name(relive[1])
+                msg_id = await bot.send(event,f'获得复活赛资格的英桀为{name_tmp1}, {name_tmp2}')
+                try:
+                    withdraw_message_manager.withdraw_message(
+                        event,
+                        msg_id["message_id"],
+                        Config.get_config("fight", "FIGHT_PROCESS"),
+                    )
+                except:
+                    pass
             list_mess = random.sample(list_win, int (count_com))
             list_win = []
             index_tmp = 0
