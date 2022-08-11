@@ -558,7 +558,7 @@ async def _(
                     withdraw_message_manager.withdraw_message(
                         event,
                         msg_id["message_id"],
-                        Config.get_config("fight", "FIGHT_PROCESS"),
+                        Config.get_config("fight", "FIGHT_TMP"),
                     )
                 except:
                     pass
