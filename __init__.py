@@ -608,7 +608,7 @@ async def _(
                     await BagUser.spend_gold(players_compete[group][i + 1]["uid"], group, list_mode_cost[1])
                     if players_compete[group][i + 1]['support'] == list_win[0]:
                         win_player = i + 1
-                await BagUser.add_gold(players_compete[group][win_player]['uid'], group, list_mode_cost[1] * 5)
+                await BagUser.add_gold(players_compete[group][win_player]['uid'], group, list_mode_cost[1] * (list_mode_cost[0] + 1))
                 #初始化
                 win_name_player = players_compete[group][win_player]['name']
                 await bot.send(event, f'{win_name}取得了最终胜利\n{win_name_player}因此获得了{cost_com * mode_com + cost_com}金币')
