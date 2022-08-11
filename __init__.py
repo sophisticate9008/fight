@@ -101,25 +101,21 @@ __plugin_configs__ = {
         "default_value": 60,
     },
     "FIGHT_COMPETE": {
-        "value": 180,
+        "value": 60,
         "help": "助威时间",
-        "default_value": 180,
+        "default_value": 60,
     },    
 }
 
-fight_player = {}
-multi_number = 0
-com_number = 0
-uid_list = []
+fight_single = {}
+
+players_support = {}
+
 players_compete = {}
-uid_list_compete = []
-list_mode_cost = []
-list_lost = []
-list_win = []
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨应援会", permission=GROUP, priority=5, block=True)
-join_multi = on_command("应援",permission=GROUP, priority=5, block=True)
+join_support = on_command("应援",permission=GROUP, priority=5, block=True)
 fight_compete = on_command("海滨比赛", permission=GROUP, priority=5, block=True)
 join_compete = on_command("助威", permission=GROUP, priority=5, block=True) 
 @ready.handle()
@@ -128,6 +124,17 @@ async def _(bot: Bot,
             state: T_State,
             args: Message = CommandArg(),
             ):
+    global fight_single
+    uid = event.user_id
+    group = event.group_id
+    try:
+        if fight_single[group]:
+            pass
+        else:
+            fight_single[group] = {}
+    except:
+        fight_single[group] = {}
+    fight_single[group][uid] = {}
     path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
     await deltemp(path_fight_temp)
     rands1 = int(random.randint(0, 11))
@@ -136,8 +143,11 @@ async def _(bot: Bot,
         rands1 = int(random.randint(0, 11))
         rands2 = int(random.randint(0, 11))
     list_prob = []
+    
     stats(rands1, rands2, 0, 10000, list_prob)
+    
     list_beilv = []
+    
     if list_prob[1] < 100:
         list_beilv.append(100.00)
     else:
@@ -146,13 +156,17 @@ async def _(bot: Bot,
         list_beilv.append(100.00)
     else:
         list_beilv.append(10000 / list_prob[3])
-    global msg_id_0 
+        
+    fight_single[group][uid]['list_beilv'] = list_beilv
+     
     msg_id_0 = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币倍率分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
-
-    global msg_id_1
+    fight_single[group][uid]['msg_id_0'] = msg_id_0
+    
     msg_id_1 = await bot.send(event, '请选择你的支持目标和应援金额, 0为前 1为后, 两个参数空格隔开')
-    state['role_two'] = [rands1, rands2]
-    state['beilv'] = list_beilv
+    fight_single[group][uid]['msg_id_1'] = msg_id_1
+    fight_single[group][uid]['role_two'] = [rands1, rands2]
+
+
     @ready.got('select')
     async def _(bot: Bot,                                                                   
         event: GroupMessageEvent,
@@ -167,12 +181,12 @@ async def _(bot: Bot,
         try:
             withdraw_message_manager.withdraw_message(
                 event,
-                msg_id_0["message_id"],
+                fight_single[group][uid]['msg_id_0']["message_id"],
                 Config.get_config("fight", "FIGHT_TMP"),
             )
             withdraw_message_manager.withdraw_message(
                 event,
-                msg_id_1["message_id"],
+                fight_single[group][uid]['msg_id_1']["message_id"],
                 Config.get_config("fight", "FIGHT_TMP"),
             )
         except:
@@ -182,11 +196,14 @@ async def _(bot: Bot,
             selRole = int (text_split[0])
             money_spend = int (text_split[1])
         except:
+            fight_single[group][uid] = {}
             await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
         if selRole != 0 and selRole != 1:
+            fight_single[group][uid] = {}
             await ready.finish("参数不正确,消耗掉一次机会,若开始请重新输入【海滨乱斗】")
         gold_have = await BagUser.get_gold(uid, group)
         if gold_have < money_spend:
+            fight_single[group][uid] = {}
             await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
         await BagUser.spend_gold(uid, group, money_spend)
         try:
@@ -199,7 +216,7 @@ async def _(bot: Bot,
         except:
             pass
         list_fight = []
-        list_role = state['role_two']
+        list_role = fight_single[group][uid]['role_two']
         list_fight = stats(list_role[0], list_role[1], 1, 1, list_fight)
         count = list_fight[4].count
         path_fight1 = str(path_fight)
@@ -223,7 +240,8 @@ async def _(bot: Bot,
             )
         except:
             pass
-        list_beilv = state['beilv']
+        list_beilv = fight_single[group][uid]['list_beilv']
+        fight_single[group][uid] = {}
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
                 money_add = int (money_spend * list_beilv[0] * 0.95 + money_spend * 0.05)
@@ -277,16 +295,14 @@ async def deltemp(path:str):
 async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
-    global fight_player
-    global multi_number
-    global uid_list
+    global players_support
+
     time_yingyuan = float(Config.get_config("fight", "FIGHT_YINGYUAN"))
-    msg = arg.extract_plain_text().strip()
     group = event.group_id
     try:
         
         try:
-            if fight_player[group][0]:
+            if players_support[group][0]:
                 await fight_multi.finish('已经有应援会在进行了,请直接应援')
         except KeyError:
             pass
@@ -310,23 +326,25 @@ async def _(
             list_beilv.append(100.00)
         else:
             list_beilv.append(10000 / list_prob[3])
-        msg_id_0 = await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]'.format(list_prob[0], list_prob[2]))
+        await bot.send(event, '随机到的两名英桀是{}  {}\n将不再显示概率\n请发送 应援 [0 or 1] [money]'.format(list_prob[0], list_prob[2]))
         
         #等待部分
         list_role = [rands1, rands2]
-        fight_player[group] = {}
-        fight_player[group][0] = 1
-        fight_player[group]['time'] = time.time()
+        players_support[group] = {}
+        players_support[group][0] = {}
+        players_support[group]['time'] = time.time()
+        players_support[group][0]['multi_number'] = 0
+        players_support[group][0]['uid_list'] = []
         await asyncio.sleep(time_yingyuan)#时间修改
         dict_all = {}
         #清单发送
-        for i in range(1, len(fight_player[group]) - 1):
+        for i in range(1, len(players_support[group]) - 1):
             dict_all[i] = {}
-            dict_all[i]["name"] = fight_player[group][i]["name"]
-            role_sup = fight_player[group][i]["support"]
+            dict_all[i]["name"] = players_support[group][i]["name"]
+            role_sup = players_support[group][i]["support"]
             role_num = list_role[role_sup]
             dict_all[i]["support"] = await int_to_name(role_num)
-            dict_all[i]["money"] = fight_player[group][i]["money"]
+            dict_all[i]["money"] = players_support[group][i]["money"]
         image_add_name("yingyuandan", dict_all,  list_role)
         msg_tuple = ()
         img_yingyuandan = f"file:///{path_fight_temp}yingyuandan.jpg"
@@ -342,24 +360,24 @@ async def _(
         money_sum = 0
         money_sum_vic = 0
         #奖池计算
-        for i in range(1, len(fight_player[group]) - 1):
-            money_sum += fight_player[group][i]["money"]
-            await BagUser.spend_gold(fight_player[group][i]["uid"], group, fight_player[group][i]["money"])
+        for i in range(1, len(players_support[group]) - 1):
+            money_sum += players_support[group][i]["money"]
+            await BagUser.spend_gold(players_support[group][i]["uid"], group, players_support[group][i]["money"])
         money_pool = list_beilv[list_return[1]] * money_sum * 0.95
         list_vic = []
         #胜者统计
-        for i in range(1, len(fight_player[group]) - 1):
-            if fight_player[group][i]["support"] == list_return[1]:
-                money_sum_vic += fight_player[group][i]["money"]
+        for i in range(1, len(players_support[group]) - 1):
+            if players_support[group][i]["support"] == list_return[1]:
+                money_sum_vic += players_support[group][i]["money"]
                 list_vic.append(i)
         kwarg_award = {}
         #奖池分配
         for i in list_vic:
-            money_add = int (fight_player[group][i]["money"] / money_sum_vic * money_pool)
+            money_add = int (players_support[group][i]["money"] / money_sum_vic * money_pool)
             kwarg_award[i] = {}
-            kwarg_award[i]["name"] = fight_player[group][i]["name"]
+            kwarg_award[i]["name"] = players_support[group][i]["name"]
             kwarg_award[i]["money"] = money_add
-            await BagUser.add_gold(fight_player[group][i]["uid"], group, money_add)
+            await BagUser.add_gold(players_support[group][i]["uid"], group, money_add)
         role_win = await int_to_name(list_role[list_return[1]])
         image_win( kwarg_award, role_win)
         
@@ -368,44 +386,20 @@ async def _(
         await bot.send(event, f"战斗结束，获胜者为{list_return[2].name}\n奖池金额为({int(money_pool)})\n分配情况如下")
         msg_tuple = ("", MessageSegment.image(img_pool_divide))
         await fight_multi.send(Message(msg_tuple))
-        msg_tuple= ()
-        kwarg_award = {}
-        list_vic = []
-        list_return = []
-        money_sum = 0
-        list_role = []
-        list_beilv = []
-        list_prob = []
-        fight_player = {}
-        multi_number = 0
-        money_pool = 0
-        uid_list = []
-        dict_all = {}
+
+        players_support[group] = {}
+
     except KeyError:
-        msg_tuple= ()
-        kwarg_award = {}
-        list_vic = []
-        list_return = []
-        money_sum = 0
-        list_role = []
-        list_beilv = []
-        list_prob = []
-        fight_player = {}
-        multi_number = 0
-        money_pool = 0
-        uid_list = []
-        dict_all = {}
+        players_support[group] = {}
         await fight_multi.finish('未知错误,强行初始化')
     
     
     
-@join_multi.handle()
+@join_support.handle()
 async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
-    global fight_player
-    global multi_number
-    global uid_list
+    global players_support
     time_yingyuan = float(Config.get_config("fight", "FIGHT_YINGYUAN"))
     uid = event.user_id
     group = event.group_id
@@ -416,24 +410,25 @@ async def _(
         msg_money = msg[1]
         gold_have = await BagUser.get_gold(uid, group)
         try:
-            if time.time() - fight_player[group]['time'] < time_yingyuan:
+            if time.time() - players_support[group]['time'] < time_yingyuan:
                 if is_number(msg_sup) and is_number(msg_money):
                     if int(msg_sup) == 0 or int(msg_sup) == 1:
                         if int(msg_money) >= 0 and int(msg_money) <= gold_have:
-                            if uid not in uid_list:
-                                uid_list.append(uid)
-                                multi_number += 1
-                                fight_player[group][multi_number] = {}
-                                fight_player[group][multi_number]["uid"] = uid
-                                fight_player[group][multi_number]["support"] = int(msg_sup)
-                                fight_player[group][multi_number]["money"] = int(msg_money)
+                            if uid not in players_support[group][0]['uid_list']:
+                                players_support[group][0]['uid_list'].append(uid)
+                                players_support[group][0]['multi_number'] += 1
+                                multi_number = players_support[group][0]['multi_number']
+                                players_support[group][multi_number] = {}
+                                players_support[group][multi_number]["uid"] = uid
+                                players_support[group][multi_number]["support"] = int(msg_sup)
+                                players_support[group][multi_number]["money"] = int(msg_money)
                                 await BagUser.spend_gold(uid, group, int(msg_money))
-                                fight_player[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name                                
+                                players_support[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name                                
                             else:
-                                await join_multi.finish("铁咩,只能投一次啊喂",at_sender=True)                            
+                                await join_support.finish("铁咩,只能投一次啊喂",at_sender=True)                            
         except KeyError:
-            uid_list = []
-            await join_multi.finish("没有应援会在进行哦")
+            players_support[group][0]['uid_list'] = []
+            await join_support.finish("没有应援会在进行哦")
 
 
 #战斗函数加合并消息函数
@@ -474,8 +469,7 @@ async def int_to_name(number):
     name = list_role[number]
     return name    
 
-async def name_to_int(name:str):
-    list_role = []
+
         
 
 @fight_compete.handle()
@@ -483,12 +477,12 @@ async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
     path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
-    global uid_list_compete
+    
     global players_compete
-    global list_mode_cost
-    global list_win
-    global list_lost
-    global com_number
+    
+    list_win = []
+    list_lost = []
+    
     time_compete = float(Config.get_config("fight", "FIGHT_COMPETE"))
     time_relax = int(Config.get_config("fight", "FIGHT_RELAX"))
     uid = event.user_id
@@ -504,16 +498,23 @@ async def _(
         if len(msg) == 2:
             mode_compete = msg[0]
             cost_compete = msg[1]
-            gold_have = await BagUser.get_gold(uid, group)
+
             if is_number(mode_compete) and is_number(cost_compete):
                 mode_com = int(mode_compete)
                 cost_com = int(cost_compete)
                 if mode_com == 2 or mode_com == 4 or mode_com == 8 or mode_com == 12:
+                    list_mode_cost = []
                     list_mode_cost.append(mode_com)
                     list_mode_cost.append(cost_com)
+                    
                     players_compete[group] = {}
                     players_compete[group][0] = {}
                     players_compete[group][0]['time'] = time.time()
+                    players_compete[group][0]['uid_list_compete'] = []
+                    players_compete[group][0]['list_mode_cost'] = list_mode_cost
+                    players_compete[group][0]['com_number'] = 0
+                    
+                    
                     await bot.send(event,'开始，请输入 [助威] 参与')
                 else:
                     await fight_compete.finish("不正确,未能开始")
@@ -530,10 +531,9 @@ async def _(
                 await asyncio.sleep(1)
         
         if len (players_compete[group]) - 1 != mode_com:
-            uid_list_compete = []
-            players_compete = {}
+            
+            players_compete[group] = {}
             list_mode_cost = []
-            com_number = 0
             await fight_compete.finish('人数不够,比赛取消')
         count_com = mode_com
         role_sel = random.sample(range(12), mode_com)
@@ -631,32 +631,17 @@ async def _(
                 #初始化
                 win_name_player = players_compete[group][win_player]['name']
                 await bot.send(event, f'{win_name}取得了最终胜利\n{win_name_player}因此获得了{cost_com * mode_com + cost_com}金币')
-                list_mode_cost = []
-                players_compete = {}
-                uid_list_compete = []
-                list_win = []
-                list_lost = []
-                txts = {}
-                com_number = 0
+                players_compete[group] = {}
             count_com = int(count_com / 2)
     except KeyError:
-        list_mode_cost = []
-        players_compete = {}
-        uid_list_compete = []
-        list_win = []
-        list_lost = []
-        txts = {}
-        com_number = 0
+        players_compete[group] = {}
         await fight_compete.finish('键错误,强行初始化')            
     
 @join_compete.handle()
 async def _(
     bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
 ):
-    global uid_list_compete
     global players_compete
-    global list_mode_cost
-    global com_number
     time_compete = float(Config.get_config("fight", "FIGHT_COMPETE"))
     uid = event.user_id
     group = event.group_id
@@ -664,11 +649,14 @@ async def _(
         gold_have = await BagUser.get_gold(uid, group)
         try:
             if time.time() - players_compete[group][0]["time"] < time_compete:
-                if uid not in uid_list_compete:
-                    if len(uid_list_compete) < list_mode_cost[0]:
+                
+                if uid not in players_compete[group][0]['uid_list_compete']:
+                    list_mode_cost = players_compete[group][0]['list_mode_cost']
+                    if len(players_compete[group][0]['uid_list_compete']) < list_mode_cost[0]:
                         if gold_have > list_mode_cost[1]:
-                            uid_list_compete.append(uid)
-                            com_number += 1
+                            players_compete[group][0]['uid_list_compete'].append(uid)
+                            players_compete[group][0]['com_number'] += 1
+                            com_number = players_compete[group][0]['com_number']
                             players_compete[group][com_number] = {}
                             players_compete[group][com_number]['name'] = (await GroupInfoUser.get_member_info(uid, group)).user_name
                             players_compete[group][com_number]['uid'] = uid                            
@@ -681,13 +669,10 @@ async def _(
         except KeyError:
             await join_compete.finish("比赛未开启") 
     except KeyError:
-        list_mode_cost = []
-        players_compete = {}
-        uid_list_compete = []
-        list_win = []
-        list_lost = []
-        txts = {}
-        com_number = 0        
+
+        players_compete[group] = {}
+
+       
         await join_compete.finish("键错误,强行初始化")        
 
 
