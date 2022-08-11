@@ -101,9 +101,9 @@ __plugin_configs__ = {
         "default_value": 60,
     },
     "FIGHT_COMPETE": {
-        "value": 60,
+        "value": 300,
         "help": "助威时间",
-        "default_value": 60,
+        "default_value": 300,
     },    
 }
 
