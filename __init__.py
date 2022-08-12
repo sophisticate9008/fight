@@ -105,6 +105,11 @@ __plugin_configs__ = {
         "help": "助威时间",
         "default_value": 300,
     },    
+    "FIGHT_PICTURE": {
+        "value": 1,
+        "help": "0为q版, 1正常",
+        "default_value": 1,
+    },   
 }
 
 fight_single = {}
@@ -603,7 +608,10 @@ async def _(
                 list_win.append(list_return[2].skill)
                 list_lost.append(list_return[3].skill)
                 index_tmp += 2
-                await asyncio.sleep(time_relax)
+                if count_com > 2:
+                    await asyncio.sleep(time_relax)
+                else:
+                    pass
             if len(list_win) > 1:
                 list_win_name = []
                 for i in list_win:

@@ -33,7 +33,7 @@ import random
 from PIL import Image, ImageDraw, ImageFont
 from configs.path_config import IMAGE_PATH, FONT_PATH
 import os
-
+from configs.config import Config
 
 
 def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
@@ -62,12 +62,23 @@ def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
     return count
 
 def image_add_name(name:str, txts:dict, list_role: list, text_color=(0, 0, 0)):
-    text_size = 26
+    pic_arg = int(Config.get_config("fight", "FIGHT_PICTURE"))
+    if pic_arg == 0:
+        pic_style = '.png'
+        
+        img_length = 401
+        img_width = 600  
+        text_size = 26      
+    if pic_arg == 1:
+        pic_style = '.jpg'
+        img_length = 900
+        img_width = 1080
+        text_size = 60
     path_fight = os.path.dirname(__file__)
     path_fight_res = str(path_fight) + "/resources/"    
-    img_back = Image.new("RGB",(802, (len(txts) * (text_size + 2)) + 600),(255,255,255))
-    left = path_fight_res + str(list_role[0] + 12) + '.png'
-    right = path_fight_res + str(list_role[1] + 12) + '.png'
+    img_back = Image.new("RGB",(img_length * 2, (len(txts) * (text_size + 2)) + img_width),(255,255,255))
+    left = path_fight_res + str(list_role[0] + 12) + pic_style
+    right = path_fight_res + str(list_role[1] + 12) + pic_style
     left_f = Image.open(left)
     right_f = Image.open(right)
     fight_dir = IMAGE_PATH / "fight"
@@ -75,7 +86,7 @@ def image_add_name(name:str, txts:dict, list_role: list, text_color=(0, 0, 0)):
     temp = fight_dir / "temp"
     temp.mkdir(exist_ok=True, parents=True)
     img_back.paste(left_f, (0, 0))
-    img_back.paste(right_f, (402, 0))
+    img_back.paste(right_f, (img_length, 0))
     fight_ttf = str(FONT_PATH / "yuanshen.ttf")
 
     # 创建一个可以在给定图像上绘图的对象
@@ -87,9 +98,9 @@ def image_add_name(name:str, txts:dict, list_role: list, text_color=(0, 0, 0)):
     j = -1
     for i in txts:
         j = j + 1
-        draw.text((0, (text_size + 2) * j + 600), txts[i]["name"], (0, 0, 0), font=fontStyle)
-        draw.text((802 - text_size * 12, (text_size + 2) * j + 600), txts[i]["support"], (208, 122, 255), font=fontStyle)
-        draw.text((802 - text_size * 4, (text_size + 2) * j + 600), str(txts[i]["money"]), (255, 187, 0), font=fontStyle)
+        draw.text((0, (text_size + 2) * j + img_width), txts[i]["name"], (0, 0, 0), font=fontStyle)
+        draw.text((img_length * 2 - text_size * 12, (text_size + 2) * j + img_width), txts[i]["support"], (208, 122, 255), font=fontStyle)
+        draw.text((img_length * 2 - text_size * 4, (text_size + 2) * j + img_width), str(txts[i]["money"]), (255, 187, 0), font=fontStyle)
     img_back.save(temp / '{}.jpg'.format(name))
     del img_back
     del left_f
@@ -137,11 +148,20 @@ def image_win(txts:dict, role_win:str):
 
 
 def image_compete(txts:dict, mode:int):
-    text_size = 31
+    pic_arg = int(Config.get_config("fight", "FIGHT_PICTURE"))
+    if pic_arg == 0:
+        pic_style = '.png'
+        img_length = 401
+        img_width = 600
+        text_size = 31
+    if pic_arg == 1:
+        pic_style = '.jpg'    
+        img_length = 900
+        img_width = 1080
+        text_size = 71    
+    
     m = 0
     n = 0
-    img_length = 401
-    img_width = 600
     if mode == 2:
         m = 2
         n = 1
@@ -172,7 +192,7 @@ def image_compete(txts:dict, mode:int):
             rows += 1
             columns = 0
         support = txts[i]["support"]
-        img_role = path_fight_res + str(support + 12) + '.png'
+        img_role = path_fight_res + str(support + 12) + pic_style
         img = Image.open(img_role)
         img_back.paste(img, (columns * img_length, rows * (img_width + text_size + 4)))
         del img
