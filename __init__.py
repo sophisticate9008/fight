@@ -547,7 +547,7 @@ async def _(
             txts[i + 1]['name'] = players_compete[group][i + 1]['name']
         image_compete(txts, mode_com)
         compete = f"file:///{path_fight_temp}compete.jpg"
-        msg_tuple = (f"时间结束或人已满,助威表单如下,{time_relax}s后开始战斗", MessageSegment.image(compete))
+        msg_tuple = (f"人已满,助威表单如下,{time_relax}s后开始战斗", MessageSegment.image(compete))
         
         await fight_compete.send(Message(msg_tuple))
         await asyncio.sleep(time_relax)    
