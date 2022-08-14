@@ -1,5 +1,6 @@
 # coding=utf-8
 import asyncio
+import sys
 from email.mime import image
 from ntpath import join
 from statistics import mode
@@ -25,6 +26,7 @@ import shutil
 from nonebot.params import CommandArg
 from .fightStats import stats
 path_fight = os.path.dirname(__file__)
+path_fight.replace('\\', '/')
 from configs.path_config import IMAGE_PATH, FONT_PATH
 from nonebot import on_command
 from nonebot.adapters.onebot.v11 import GroupMessageEvent
