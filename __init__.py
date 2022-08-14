@@ -1,11 +1,6 @@
 # coding=utf-8
 import asyncio
 import sys
-from email.mime import image
-from ntpath import join
-from statistics import mode
-from tokenize import group
-from unicodedata import name
 from configs.config import NICKNAME
 from nonebot import on_command
 from nonebot.typing import T_State
