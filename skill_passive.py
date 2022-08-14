@@ -107,7 +107,7 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                             txts.append("格蕾修受到剩余伤害{}".format(two[first].attacked))
                         from .fightFrame import calLife
                         calLife(two, order, isDisplay, first, second, 1, 0, txts, count)
-                        if(two[first].life == 0) :
+                        if(two[first].life <= 0) :
                             two[second].isDisplayVictory = 1
                             from .picture_make import image_add_text
                             if isDisplay == 1:
