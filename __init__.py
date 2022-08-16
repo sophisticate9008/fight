@@ -161,11 +161,8 @@ async def _(bot: Bot,
         
     fight_single[group][uid]['list_beilv'] = list_beilv
      
-    msg_id_0 = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币乘数分别为{:.2f}  {:.2f}'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
+    msg_id_0 = await bot.send(event, '随机到的两名英桀是\n{}  {}\n胜率分别为{:.2f}  {:.2f}\n 获胜获得金币乘数分别为{:.2f}  {:.2f}\n请选择支持目标和应援金, 0为前 1为后, 两个参数空格隔开'.format(list_prob[0], list_prob[2], float(list_prob[1] /10000), float(list_prob[3] / 10000), float(list_beilv[0]), float(list_beilv[1])))
     fight_single[group][uid]['msg_id_0'] = msg_id_0
-    
-    msg_id_1 = await bot.send(event, '请选择你的支持目标和应援金额, 0为前 1为后, 两个参数空格隔开')
-    fight_single[group][uid]['msg_id_1'] = msg_id_1
     fight_single[group][uid]['role_two'] = [rands1, rands2]
 
 
@@ -186,11 +183,7 @@ async def _(bot: Bot,
                 fight_single[group][uid]['msg_id_0']["message_id"],
                 Config.get_config("fight", "FIGHT_TMP"),
             )
-            withdraw_message_manager.withdraw_message(
-                event,
-                fight_single[group][uid]['msg_id_1']["message_id"],
-                Config.get_config("fight", "FIGHT_TMP"),
-            )
+
         except:
             pass
 
@@ -208,15 +201,6 @@ async def _(bot: Bot,
             fight_single[group][uid] = {}
             await ready.finish("你的钱不够,请下次看好你有多少金币，若开始请重新输入【海滨乱斗】")
         await BagUser.spend_gold(uid, group, money_spend)
-        try:
-            msg_id = await bot.send(event, '以下是战斗过程')
-            withdraw_message_manager.withdraw_message(
-                event,
-                msg_id["message_id"],
-                Config.get_config("fight", "FIGHT_TMP"),
-            )
-        except:
-            pass
         list_fight = []
         list_role = fight_single[group][uid]['role_two']
         list_fight = stats(list_role[0], list_role[1], 1, 1, list_fight)
