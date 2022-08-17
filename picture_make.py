@@ -196,7 +196,7 @@ def image_compete(txts:dict, mode:int):
         img = Image.open(img_role)
         img_back.paste(img, (columns * img_length, rows * (img_width + text_size + 4)))
         del img
-        draw.text((columns * img_length, (rows + 1) * img_width + 2), txts[i]["name"], (0, 0, 0), font=fontStyle)
+        draw.text((columns * img_length, (rows + 1) * img_width + 2 + rows * (text_size + 4)), txts[i]["name"], (0, 0, 0), font=fontStyle)
         columns += 1
     img_back.save(temp / '{}.jpg'.format("compete"))
     del img_back
