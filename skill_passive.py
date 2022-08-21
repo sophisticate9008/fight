@@ -32,7 +32,7 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                 two[second].life = 0
                 if(isDisplay == 1) :
                     txts.append("凯文触发了被动：炎热归零")
-                two[first].isVictory = 1
+                two[first].isDisplayVictory = 1
                 from .picture_make import image_add_text
                 if isDisplay == 1:
                     image_add_text(count, txts,  text_color=(0, 0, 0), text_size=12)
