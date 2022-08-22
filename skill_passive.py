@@ -171,8 +171,6 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
             if(random.randint(1,100) <= 30) :
                 if(two[first].mess > 0) :
                     two[first].silenceChanged = 1
-                    two[first].StateTimes_op = 2
-                    two[first].StateTimes_op_st = 2
                     if(isDisplay == 1) :
                         txts.append("阿波尼亚触发被动:该休息了,但由于混乱,返还自身".format(two[second].name))
                     
