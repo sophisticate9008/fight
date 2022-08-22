@@ -130,4 +130,4 @@
 修复金币倍率固定bug  
 #
 
-https://user-images.githubusercontent.com/105090141/184517881-b758a399-494b-497c-9870-e50f1248f508.png
+![image](https://user-images.githubusercontent.com/94435821/185830871-232617d6-087f-49ab-92a4-e05b41f7c4f1.png)
