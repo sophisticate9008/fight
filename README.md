@@ -128,4 +128,6 @@
 修复除0bug  
 
 修复金币倍率固定bug  
+#
 
+https://user-images.githubusercontent.com/105090141/184517881-b758a399-494b-497c-9870-e50f1248f508.png
