@@ -31,8 +31,10 @@ from utils.manager import withdraw_message_manager
 from configs.config import Config
 from utils.utils import is_number
 from models.group_member_info import GroupInfoUser
+from utils.data_utils import init_rank
+from utils.message_builder import image , at
 from .picture_make import image_add_name, image_win, image_compete
-
+from ._model import Fight_record
 __zx_plugin_name__ = "海滨的灼热乱斗"
 __plugin_usage__ = """
 usage:
@@ -40,8 +42,10 @@ usage:
         随机挑选2名英桀进行战斗 用户进行金币应援
         会生成对战赢的概率 根据概率获得金币倍率收益
         会扣除所得税百分之五
+        海滨乱斗静默:
+        不再展示战斗过程,也不再撤回消息
         指令:
-        "海滨乱斗", "[参数一] [参数二]"
+        "海滨乱斗?静默", "[参数一] [参数二]"
     海滨应援会:
         随机挑选两名英桀进行战斗,60s内用户可选择支持的英桀和应援金额
         奖池为所有人的应援金币 * 胜者英桀倍率 * 0.95
@@ -57,6 +61,18 @@ usage:
         请勿联合刷金币，没什么意思
         指令:
         "海滨比赛 [2 4 8 12] [gold]", "助威"
+    我的海滨乱斗概况
+        指令:
+        我的海滨乱斗概况
+    次数榜:
+        指令:
+        乱斗次数榜 ?num
+    赚钱榜:
+        指令:
+        乱斗赚钱榜 ?num
+    输钱榜:
+        指令:
+        乱斗输钱榜 ?num
         
 """.strip()
 __plugin_des__ = "逐火英桀战斗模拟"
@@ -106,7 +122,7 @@ __plugin_configs__ = {
         "value": 1,
         "help": "0为q版, 1正常",
         "default_value": 1,
-    },   
+    },
 }
 
 fight_single = {}
@@ -119,14 +135,19 @@ ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨应援会", permission=GROUP, priority=5, block=True)
 join_support = on_command("应援",permission=GROUP, priority=5, block=True)
 fight_compete = on_command("海滨比赛", permission=GROUP, priority=5, block=True)
-join_compete = on_command("助威", permission=GROUP, priority=5, block=True) 
+join_compete = on_command("助威", permission=GROUP, priority=5, block=True)
+fight_sort = on_command("乱斗", permission=GROUP, priority=5, block=True)
+fight_my = on_command("我的海滨乱斗概况", permission=GROUP, priority=5, block=True)
 @ready.handle()
 async def _(bot: Bot,
             event: GroupMessageEvent,
             state: T_State,
             args: Message = CommandArg(),
             ):
+    
     global fight_single
+    msg = args.extract_plain_text().strip()
+    
     uid = event.user_id
     group = event.group_id
     try:
@@ -137,6 +158,10 @@ async def _(bot: Bot,
     except:
         fight_single[group] = {}
     fight_single[group][uid] = {}
+    if msg == '静默':
+        fight_single[group][uid]['silence'] = 1
+    else:
+        fight_single[group][uid]['silence'] = 0
     path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
     await deltemp(path_fight_temp)
     rands1 = int(random.randint(0, 11))
@@ -172,21 +197,23 @@ async def _(bot: Bot,
         state: T_State,
         select: Message = Arg("select")
         ): 
+
+        
         uid = event.user_id
         group = event.group_id
         text = get_message_text(select)
         text_split = []
         text_split = text.split()
-        try:
-            withdraw_message_manager.withdraw_message(
-                event,
-                fight_single[group][uid]['msg_id_0']["message_id"],
-                Config.get_config("fight", "FIGHT_TMP"),
-            )
+        if fight_single[group][uid]['silence'] == 0:    
+            try:
+                withdraw_message_manager.withdraw_message(
+                    event,
+                    fight_single[group][uid]['msg_id_0']["message_id"],
+                    Config.get_config("fight", "FIGHT_TMP"),
+                )
 
-        except:
-            pass
-
+            except:
+                pass
         try:
             selRole = int (text_split[0])
             money_spend = int (text_split[1])
@@ -206,36 +233,38 @@ async def _(bot: Bot,
         list_fight = stats(list_role[0], list_role[1], 1, 1, list_fight)
         count = list_fight[4].count
         path_fight1 = str(path_fight)
-        
         msg_list = []
-        image_file_role1 = f"file:///{path_fight1}/resources/{list_role[0]}.jpg" 
-        image_file_role2 = f"file:///{path_fight1}/resources/{list_role[1]}.jpg"
-        msg_list = await chain_reply(bot, msg_list, image_file_role1, "")
-        msg_list = await chain_reply(bot, msg_list, image_file_role2, "")
-        path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
-        
-        for i in range(count):
-            image_file = f"file:///{path_fight_temp}{i}.png"
-            msg_list = await chain_reply(bot, msg_list, image_file, "")
-        try:
-            msg_id = await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
-            withdraw_message_manager.withdraw_message(
-                event,
-                msg_id["message_id"],
-                Config.get_config("fight", "FIGHT_PROCESS"),
-            )
-        except:
-            pass
+        if fight_single[group][uid]['silence'] == 0:
+            image_file_role1 = f"file:///{path_fight1}/resources/{list_role[0]}.jpg" 
+            image_file_role2 = f"file:///{path_fight1}/resources/{list_role[1]}.jpg"
+            msg_list = await chain_reply(bot, msg_list, image_file_role1, "")
+            msg_list = await chain_reply(bot, msg_list, image_file_role2, "")
+            path_fight_temp = str((IMAGE_PATH / "fight" / "temp").absolute()) + "/"
+            
+            for i in range(count):
+                image_file = f"file:///{path_fight_temp}{i}.png"
+                msg_list = await chain_reply(bot, msg_list, image_file, "")
+            try:
+                msg_id = await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
+                withdraw_message_manager.withdraw_message(
+                    event,
+                    msg_id["message_id"],
+                    Config.get_config("fight", "FIGHT_PROCESS"),
+                )
+            except:
+                pass
         list_beilv = fight_single[group][uid]['list_beilv']
         fight_single[group][uid] = {}
         if int(selRole) == 0:
             if(list_fight[4].isDisplayVictory == 1):
                 money_add = int (money_spend * list_beilv[0] * 0.95 + money_spend * 0.05)
                 await BagUser.add_gold(uid, group, money_add)
+                await Fight_record.record(group, uid, money_add - money_spend, 1)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
                     
             else:
+                await Fight_record.record(group, uid, money_spend, 0)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish( '你支持的英桀惜败,没有获得一个金币,当前金币为{}'.format(gold_have), at_sender=True)
                 
@@ -244,14 +273,14 @@ async def _(bot: Bot,
                 money_add = int (money_spend * list_beilv[1] * 0.95 + money_spend * 0.05)
                 await BagUser.add_gold(uid, group, money_add)
                 gold_have = await BagUser.get_gold(uid, group)
+                await Fight_record.record(group, uid, money_add - money_spend, 1)
                 await ready.finish( '你支持的英桀获胜,你获得{}金币,当前金币为{}'.format(money_add, gold_have), at_sender=True)
                 
             else:
+                await Fight_record.record(group, uid, money_spend, 0)
                 gold_have = await BagUser.get_gold(uid, group)
                 await ready.finish('你支持的英桀惜败,你没有获得一个金币,当前金币为{}'.format(gold_have), at_sender=True)
-                
 
-                    
 async def chain_reply(bot, msg_list, image, text:str):
     
     data = {
@@ -670,3 +699,51 @@ def run_now(players_compete:dict, mode_com, group:int):
         return True
     else:
         return False
+
+@fight_my.handle()
+async def _(
+    bot: Bot, event: GroupMessageEvent, state: T_State, arg: Message = CommandArg()
+):
+    global players_compete
+    uid = event.user_id
+    group = event.group_id
+    list_my = await Fight_record.my(group, uid)
+    if list_my == 0:
+        await fight_my.finish('你还没有参加过海滨乱斗', at_sender = True)
+    else:
+        msg = '你一共参加了{}次海滨乱斗,曾赢过{}金币, 共输掉{}金币'.format(list_my[0], list_my[1], list_my[2])
+        await fight_my.finish(msg, at_sender = True)
+
+@fight_sort.handle()
+async def _(event: GroupMessageEvent, arg: Message = CommandArg()):
+    msg = arg.extract_plain_text().strip()
+    msg_ = msg.split()
+    type_ = msg_[0]
+    try:    
+        num = msg_[1]
+        if is_number(num) and 51 > int(num) > 10:
+            num = int(num)
+        else:
+            num = 10        
+    except:
+        num = 10
+    
+    all_users = await Fight_record.get_all_users(event.group_id)
+    all_user_id = [user.uid for user in all_users]
+    if type_ == '次数榜':
+        
+        all_user_data = [int(user.fight_count) for user in all_users]
+        rank_image = await init_rank("乱斗次数榜", all_user_id, all_user_data, event.group_id, num)
+        if rank_image:
+            await fight_sort.finish(image(b64=rank_image.pic2bs4()))
+    if type_ == '赚钱榜':
+        all_user_data = [int(user.gain) for user in all_users]
+        rank_image = await init_rank("乱斗赚钱榜", all_user_id, all_user_data, event.group_id, num)
+        if rank_image:
+            await fight_sort.finish(image(b64=rank_image.pic2bs4()))        
+    
+    if type_ == '输钱榜':
+        all_user_data = [int(user.loss) for user in all_users]
+        rank_image = await init_rank("乱斗输钱榜", all_user_id, all_user_data, event.group_id, num)
+        if rank_image:
+            await fight_sort.finish(image(b64=rank_image.pic2bs4()))       
