@@ -58,7 +58,7 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                     from .fightFrame import calLife
                     calLife(two, order, isDisplay, first, second, 1, two[first].mess, txts, count)
                     if(two[first].life == 0) :
-                        two[second].isVictory = 1
+                        two[second].isDisplayVictory = 1
                         return True
                     
                     two[first].mess = 0
