@@ -17,6 +17,8 @@
 #
 2022/8/23
 
+发现爱莉希雅有着和凯文一样的单词错误已经修改
+
 ![image](https://user-images.githubusercontent.com/94435821/186067316-bc4d2d2f-301c-449a-8a34-8c9011db5471.png)
 
 ![image](https://user-images.githubusercontent.com/94435821/186067283-5d79454d-99fa-437f-988e-7e149622e7e2.png)
