@@ -20,13 +20,13 @@ class Fight_record(db.Model):
                 await me.update(loss = me.loss + gold).apply()
                 await me.update(fight_count = me.fight_count + 1).apply()
             else:
-                await cls.create(group_id = group_id, uid = uid, loss = 0, gain = 0, fight_count = 1)
+                await cls.create(group_id = group_id, uid = uid, loss = gold, gain = 0, fight_count = 1)
         if type == 1:
             if me:
                 await me.update(gain = me.gain + gold).apply()
                 await me.update(fight_count = me.fight_count + 1).apply()
             else:
-                await cls.create(group_id = group_id, uid = uid, loss = 0, gain = 0, fight_count = 1)
+                await cls.create(group_id = group_id, uid = uid, loss = 0, gain = gold, fight_count = 1)
     @classmethod
     async def my(cls, group_id, uid):
         query = cls.query.where((cls.group_id == group_id) & (cls.uid == uid))
