@@ -377,7 +377,7 @@ async def _(
         #奖池计算
         for i in range(1, len(players_support[group]) - 1):
             money_sum += players_support[group][i]["money"]
-            await BagUser.spend_gold(players_support[group][i]["uid"], group, players_support[group][i]["money"])
+            
         money_pool = list_beilv[list_return[1]] * money_sum * 0.95
         list_vic = []
         #胜者统计
