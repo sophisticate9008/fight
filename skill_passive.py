@@ -156,7 +156,9 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
                     txts.append("樱没有获得附加状态")
                 two[first].free = 1
                 two[first].StateTimes_op = 0
+                two[first].tear_time = 0
                 two[first].StateTimes_op += two[first].state_ying_kesimo % 6
+                two[first].tear_time += two[first].StateTimes_op / 2
                 if two[first].StateTimes_op == 0:
                     two[first].state_ying_kesimo = 0
                 two[first].StateTimes_self = 0
@@ -247,14 +249,26 @@ def skill_p( two, order, actType, isDisplay, inCal, txts:list, count) :
         if(two[first].typePassive == actType and two[first].silence == 0) :
             if(random.randint(1,100) <= 15) :
                 if(two[first].mess > 0) :
-                    two[first].StateTimes_op = 6
-                    two[first].stateHarmed = 4
+                    if two[second].tear_time < 1:    
+                        two[first].tear_time = 4
+                        two[first].stateHarmed = 4
+                    else:
+                        two[second].tear_time = 3
                     if(isDisplay == 1) :
                         txts.append("科斯魔触发了被动技:不归之爪,但由于混乱,撕裂状态返还自身")
                     
                     
                 
                 else :
+                    if two[second].tear_time < 1:
+                        if two[second].priority == 1:
+                            two[second].tear_time = 3
+                        elif two[second].skill == 11 and two[second].count > 1 and two[second].count % 2 == 1:
+                            two[second].tear_time = 3
+                        else:
+                            two[second].tear_time = 4
+                    else:
+                        two[second].tear_time = 3
                     two[second].StateTimes_op = 6
                     two[second].StateTimes_op_st = 6
                     two[second].state_ying_kesimo += 6
