@@ -97,20 +97,20 @@ def   calLife(  two,  order,  isDispaly,  attackPer,  defensePer,  detail,  mess
 
 
 #状态计算
-def calState(  two,  isDispaly, txts) :
+def calState(two,  isDispaly, txts, attacker):
+    #撕裂伤害bug太多，单独计算
+    if two[attacker].tear_time > 0:
+        if two[attacker].tear_time > 0 and two[attacker].tear_time < 4: 
+            
+            two[attacker].life -= two[attacker].stateHarmed
+            if isDispaly == 1:
+                txts.append("{}受到撕裂伤害: 4".format(two[attacker].name))
+        two[attacker].tear_time -= 1
+                    
+    
     for i in range(2) :
         #施加状态
         if two[i].StateTimes_op > 0 :
-            if two[i].StateTimes_op % 2 == 1 :
-                if isDispaly == 1 :
-                    two[i].life -= two[i].stateHarmed
-                    if two[i].stateHarmed != 0 :
-                        txts.append("{}受到撕裂伤害:{}".format  (two[i].name, two[i].stateHarmed))
-                        if(two[i].life < 0):
-                            two[i].life = 0
-                    
-                
-                
             
             two[i].attack += two[i].AttackTmpChanged 
             two[i].effected = 1
@@ -161,13 +161,10 @@ def calState(  two,  isDispaly, txts) :
             two[i].mess = 0
             two[i].messChanged = 0
             two[i].effected = 0
-            two[i].stateHarmed = 0
-        
         else :
             pass
         #自身状态
-        if two[i].StateTimes_self > 0 :
-            
+        if two[i].StateTimes_self > 0:           
             two[i].StateTimes_self = two[i].StateTimes_self - 1
             two[i].effectedSelf = 1
             two[i].speed += two[i].speedChanged 
@@ -178,9 +175,11 @@ def calState(  two,  isDispaly, txts) :
         
         elif two[i].effectedSelf == 2:
             two[i].speed -= two[i].speedChanged
-
+            two[i].stateHarmed = 0
             two[i].free = two[i].freechanged
             two[i].effectedSelf = 0
+        else:
+            pass
         
         #千劫特有状态
         if two[i].StateTimes_self_jie > 0 :
