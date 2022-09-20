@@ -236,7 +236,7 @@ def   fight(  left,  right,  isDispaly,  two) :
 
                     if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, 0, txts, count):
                         return two
-                    calState( two, isDispaly, txts)#计算状态
+                    calState( two, isDispaly, txts, ordinal_0)#计算状态
                     if two[ordinal_1].life <= 0 :
                         two[ordinal_0].isDisplayVictory = 1
                         if(isDispaly == 1):
@@ -275,7 +275,7 @@ def   fight(  left,  right,  isDispaly,  two) :
                     #挑选对应进攻被动
                     if calLife( two, i, isDispaly, ordinal_0, ordinal_1, 1, two[ordinal_0].mess, txts, count):
                         return two
-                    calState( two, isDispaly, txts) 
+                    calState( two, isDispaly, txts, ordinal_0) 
                     if two[ordinal_1].life <= 0:
                         two[ordinal_0].isDisplayVictory = 1
                         if isDispaly == 1:
