@@ -1,38 +1,49 @@
 
 
-from services.db_context import db
-
-class Fight_record(db.Model):
-    __tablename__ = "fight_record"
-    id = db.Column(db.Integer(), primary_key=True)
-    group_id = db.Column(db.BigInteger(), nullable=False)
-    uid = db.Column(db.BigInteger(),nullable=False)
-    loss = db.Column(db.BigInteger(),nullable=False)
-    gain = db.Column(db.BigInteger(),nullable=False)
-    fight_count = db.Column(db.BigInteger(),nullable=False)
+from tortoise import fields
+from services.db_context import Model
+class Fight_record(Model):
+    id = fields.IntField(pk=True, generated=True, auto_increment=True)
+    
+    group_id = fields.BigIntField()
+    uid = fields.BigIntField()
+    loss = fields.BigIntField()
+    gain = fields.BigIntField()
+    fight_count = fields.IntField()
+    class Meta:
+        table = 'fight_record'
+        table_description = "海滨乱斗数据简单记录"
+        unique_together = ("uid", "group_id")
+        
     @classmethod
     async def record(cls, group_id, uid, gold, type):
-        query = cls.query.where((cls.group_id == group_id) & (cls.uid == uid))
-        query = query.with_for_update()
-        me = await query.gino.first()
-        if type == 0:    
-            if me:
-                await me.update(loss = me.loss + gold).apply()
-                await me.update(fight_count = me.fight_count + 1).apply()
-            else:
-                await cls.create(group_id = group_id, uid = uid, loss = gold, gain = 0, fight_count = 1)
-        if type == 1:
-            if me:
-                await me.update(gain = me.gain + gold).apply()
-                await me.update(fight_count = me.fight_count + 1).apply()
-            else:
-                await cls.create(group_id = group_id, uid = uid, loss = 0, gain = gold, fight_count = 1)
+        if me := cls.get_or_none(uid=uid, group_id=group_id):
+            gold_loss = me.loss
+            gold_gain = me.gain
+            fight_count = me.fight_count + 1
+        else:
+            gold_loss = 0
+            gold_gain = 0
+            fight_count = 1
+        if type == 0:
+            await cls.update_or_create(
+                uid=uid,
+                group_id=group_id,
+                loss=gold + gold_loss,
+                fight_count=fight_count,
+                gain=gold_gain
+            )                
+        else:
+            await cls.update_or_create(
+                uid=uid,
+                group_id=group_id,
+                loss=gold_loss,
+                fight_count=fight_count,
+                gain=gold_gain + gold
+            )              
     @classmethod
     async def my(cls, group_id, uid):
-        query = cls.query.where((cls.group_id == group_id) & (cls.uid == uid))
-        query = query.with_for_update()
-        me = await query.gino.first()
-        if me:
+        if me := cls.get_or_none(uid=uid, group_id=group_id):
             list_ = []
             list_.append(me.fight_count)
             list_.append(me.gain)
@@ -42,11 +53,7 @@ class Fight_record(db.Model):
             return 0
     @classmethod
     async def get_all_users(cls, group_id:int):
-        if not group_id:
-            query = await cls.query.gino.all()
-        else:
-            query = await cls.query.where((cls.group_id == group_id)).gino.all()
-        return query
+        return await cls.filter(group_id = group_id).all()
 
                                                 
              
