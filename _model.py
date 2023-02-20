@@ -17,7 +17,7 @@ class Fight_record(Model):
         
     @classmethod
     async def record(cls, group_id, uid, gold, type):
-        if me := cls.get_or_none(uid=uid, group_id=group_id):
+        if me := await cls.get_or_none(uid=uid, group_id=group_id):
             gold_loss = me.loss
             gold_gain = me.gain
             fight_count = me.fight_count + 1
@@ -43,7 +43,7 @@ class Fight_record(Model):
             )              
     @classmethod
     async def my(cls, group_id, uid):
-        if me := cls.get_or_none(uid=uid, group_id=group_id):
+        if me := await cls.get_or_none(uid=uid, group_id=group_id):
             list_ = []
             list_.append(me.fight_count)
             list_.append(me.gain)
