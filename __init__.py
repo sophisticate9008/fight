@@ -438,7 +438,11 @@ async def _(
                                 players_support[group][multi_number]["support"] = int(msg_sup)
                                 players_support[group][multi_number]["money"] = int(msg_money)
                                 await BagUser.spend_gold(uid, group, int(msg_money))
-                                players_support[group][multi_number]["name"] = (await GroupInfoUser.get_member_info(uid, group)).user_name                                
+                                if user := await GroupInfoUser.get_or_none(user_qq=uid, group_id=group):
+                                    user_name = user.user_name
+                                else:
+                                    user_name = str(uid)
+                                players_support[group][multi_number]["name"] = user_name                                
                             else:
                                 await join_support.finish("铁咩,只能投一次啊喂",at_sender=True)                            
         except KeyError:
@@ -676,7 +680,11 @@ async def _(
                             players_compete[group][0]['com_number'] += 1
                             com_number = players_compete[group][0]['com_number']
                             players_compete[group][com_number] = {}
-                            players_compete[group][com_number]['name'] = (await GroupInfoUser.get_member_info(uid, group)).user_name
+                            if user := await GroupInfoUser.get_or_none(user_qq=uid, group_id=group):
+                                user_name = user.user_name
+                            else:
+                                user_name = str(uid)
+                            players_compete[group][com_number]['name'] = user_name
                             players_compete[group][com_number]['uid'] = uid                            
                         else:
                             await join_compete.finish("金币不够", at_sender = True)
