@@ -18,29 +18,17 @@ class Fight_record(Model):
     @classmethod
     async def record(cls, group_id, uid, gold, type):
         if me := await cls.get_or_none(uid=uid, group_id=group_id):
-            gold_loss = me.loss
-            gold_gain = me.gain
-            fight_count = me.fight_count + 1
+            me.loss -= (type -1) * gold
+            me.gain += type * gold
+            me.fight_count += 1
+            await me.save()
         else:
-            gold_loss = 0
-            gold_gain = 0
-            fight_count = 1
-        if type == 0:
-            await cls.update_or_create(
+            await cls.create(
                 uid=uid,
                 group_id=group_id,
-                loss=gold + gold_loss,
-                fight_count=fight_count,
-                gain=gold_gain
-            )                
-        else:
-            await cls.update_or_create(
-                uid=uid,
-                group_id=group_id,
-                loss=gold_loss,
-                fight_count=fight_count,
-                gain=gold_gain + gold
-            )              
+                loss = -(type -1) * gold,
+                gain = type * gold,
+                fight_count = 1)
     @classmethod
     async def my(cls, group_id, uid):
         if me := await cls.get_or_none(uid=uid, group_id=group_id):
