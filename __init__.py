@@ -131,7 +131,7 @@ players_support = {}
 
 players_compete = {}
 
-fight_num = 1000
+fight_num = 500
 
 ready = on_command("海滨乱斗",permission=GROUP, priority=5, block=True)
 fight_multi = on_command("海滨应援会", permission=GROUP, priority=5, block=True)
