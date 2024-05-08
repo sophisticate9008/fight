@@ -29,6 +29,8 @@
 # im.save(r'D:/output.png')
 
 
+import base64
+from io import BytesIO
 import random
 from PIL import Image, ImageDraw, ImageFont
 from configs.path_config import IMAGE_PATH, FONT_PATH
@@ -36,20 +38,16 @@ import os
 from configs.config import Config
 
 
-def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
+def image_add_text(txts:list,  text_color=(255, 0, 0), text_size=13):
     
     img_back = Image.new("RGB",(510, (len(txts) * 14)),(255,255,255))
     fight_dir = IMAGE_PATH / "fight"
     fight_dir.mkdir(exist_ok=True, parents=True)
-    temp = fight_dir / "temp"
-    temp.mkdir(exist_ok=True, parents=True)
-
     fight_ttf = str(FONT_PATH / "yuanshen.ttf")
 
 
     # 创建一个可以在给定图像上绘图的对象
     draw = ImageDraw.Draw(img_back)
-    
     # 字体的格式 这里的SimHei.ttf需要有这个字体
     fontStyle = ImageFont.truetype(fight_ttf, text_size, encoding="utf-8")
     # 绘制文本
@@ -57,11 +55,10 @@ def image_add_text(count ,txts:list,  text_color=(255, 0, 0), text_size=13):
     for i in txts:
         j = j + 1
         draw.text((0, j * 14), i, text_color, font=fontStyle)
-    img_back.save(temp / '{}.png'.format(count - 1))
-    del img_back
-    return count
+        
+    return img_back
 
-def image_add_name(name:str, txts:dict, list_role: list, text_color=(0, 0, 0)):
+def image_add_name(txts:dict, list_role: list, text_color=(0, 0, 0)):
     pic_arg = int(Config.get_config("fight", "FIGHT_PICTURE"))
     if pic_arg == 0:
         pic_style = '.png'
@@ -101,11 +98,7 @@ def image_add_name(name:str, txts:dict, list_role: list, text_color=(0, 0, 0)):
         draw.text((0, (text_size + 2) * j + img_width), txts[i]["name"], (0, 0, 0), font=fontStyle)
         draw.text((img_length * 2 - text_size * 12, (text_size + 2) * j + img_width), txts[i]["support"], (208, 122, 255), font=fontStyle)
         draw.text((img_length * 2 - text_size * 4, (text_size + 2) * j + img_width), str(txts[i]["money"]), (255, 187, 0), font=fontStyle)
-    img_back.save(temp / '{}.jpg'.format(name))
-    del img_back
-    del left_f
-    del right_f
-    return 0
+    return img_back
 
 def image_win(txts:dict, role_win:str):
     path_fight = os.path.dirname(__file__)
@@ -138,14 +131,8 @@ def image_win(txts:dict, role_win:str):
         draw.text((0, (text_size + 2) * j + img_w), txts[i]["name"], (0, 0, 0), font=fontStyle)
         draw.text((img_l - text_size * 4, (text_size + 2) * j + img_w), str(txts[i]["money"]), (255, 187, 0), font=fontStyle)
     img_back.save(temp / '{}.jpg'.format("pool_divide"))
-    del img_back
-    try:
-        del img
-    except:
-        pass
+    return img_back
     
-    return       
-
 
 def image_compete(txts:dict, mode:int):
     pic_arg = int(Config.get_config("fight", "FIGHT_PICTURE"))
@@ -198,9 +185,17 @@ def image_compete(txts:dict, mode:int):
         del img
         draw.text((columns * img_length, (rows + 1) * img_width + 2 + rows * (text_size + 4)), txts[i]["name"], (0, 0, 0), font=fontStyle)
         columns += 1
-    img_back.save(temp / '{}.jpg'.format("compete"))
-    del img_back
-    try:
-        del img
-    except:
-        pass
+        
+    return img_back
+
+def pic2b64(pic: Image) -> str:
+    """
+    说明:
+        PIL图片转base64
+    参数:
+        :param pic: 通过PIL打开的图片文件
+    """
+    buf = BytesIO()
+    pic.save(buf, format="PNG")
+    base64_str = base64.b64encode(buf.getvalue()).decode()
+    return "base64://" + base64_str
