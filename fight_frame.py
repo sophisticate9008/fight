@@ -54,7 +54,8 @@ def fight(left, right, is_display):
             role.txts = txts
             
         for role in roles:
-            role.turn_begin()
+            if role.blood > 0:
+                role.turn_begin()
         if is_display:
             txtss.append(txts)
     result["txtss"] = txtss
