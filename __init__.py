@@ -252,7 +252,7 @@ async def _(bot: Bot,
     list_beilv = fight_single[group][uid]['list_beilv']
     fight_single[group][uid] = {}
     if int(selRole) == list_fight[4]:
-        money_add = int (money_spend * list_beilv[0] * 0.95 + money_spend * 0.05)
+        money_add = int (money_spend * list_beilv[int(selRole)] * 0.95 + money_spend * 0.05)
         await BagUser.add_gold(uid, group, money_add)
         await Fight_record.record(group, uid, money_add - money_spend, 1)
         gold_have = await BagUser.get_gold(uid, group)
